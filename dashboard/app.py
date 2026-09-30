@@ -258,3 +258,57 @@ st.caption(
     "to the Random Forest's predictions. It does not indicate "
     "whether a feature increases or decreases churn."
 )
+
+
+# ===================================
+# USER CHURN RISK TABLE
+# ===================================
+
+st.subheader("👥 Users by Predicted Churn Risk")
+
+PREDICTIONS_PATH = (
+    "data/processed/user_churn_predictions.csv"
+)
+
+user_predictions = pd.read_csv(
+    PREDICTIONS_PATH
+)
+
+risk_filter = st.selectbox(
+    "Risk Segment",
+    ["All", "High", "Medium", "Low"]
+)
+
+if risk_filter != "All":
+    filtered_predictions = user_predictions[
+        user_predictions["risk_segment"] == risk_filter
+    ]
+else:
+    filtered_predictions = user_predictions
+
+display_predictions = filtered_predictions.copy()
+
+display_predictions["churn_probability"] = (
+    display_predictions["churn_probability"] * 100
+).round(1)
+
+display_predictions = display_predictions.rename(
+    columns={
+        "user_id": "User ID",
+        "actual_churn": "Actual Churn",
+        "churn_probability": "Churn Probability (%)",
+        "risk_segment": "Risk Segment"
+    }
+)
+
+st.dataframe(
+    display_predictions[
+        [
+            "User ID",
+            "Churn Probability (%)",
+            "Risk Segment",
+            "Actual Churn"
+        ]
+    ],
+    use_container_width=True
+)

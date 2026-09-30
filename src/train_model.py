@@ -376,3 +376,32 @@ feature_importance.to_csv(
 
 print("\nFeature importance saved to:")
 print("data/processed/feature_importance.csv")
+
+# ===================================
+# SAVE USER CHURN PREDICTIONS
+# ===================================
+
+user_predictions = pd.DataFrame({
+    "user_id": df.loc[X_test.index, "user_id"].values,
+    "actual_churn": y_test.values,
+    "churn_probability": rf_probability
+})
+
+user_predictions["risk_segment"] = pd.cut(
+    user_predictions["churn_probability"],
+    bins=[-0.01, 0.30, 0.60, 1.00],
+    labels=["Low", "Medium", "High"]
+)
+
+user_predictions = user_predictions.sort_values(
+    "churn_probability",
+    ascending=False
+)
+
+user_predictions.to_csv(
+    "data/processed/user_churn_predictions.csv",
+    index=False
+)
+
+print("\nUser churn predictions saved to:")
+print("data/processed/user_churn_predictions.csv")
