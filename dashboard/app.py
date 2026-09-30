@@ -342,6 +342,46 @@ st.caption(
     "held-out test users."
 )
 
+# ===================================
+# PRODUCT INSIGHTS
+# ===================================
+
+st.subheader("💡 Product Insights")
+
+high_risk_pct = (
+    high_risk_users / len(user_predictions)
+)
+
+churned_engagement = engagement_summary.loc[
+    "Churned"
+]
+
+non_churned_engagement = engagement_summary.loc[
+    "Non-Churned"
+]
+
+st.markdown(
+    f"""
+    **Risk concentration:** {high_risk_users:,} of
+    {len(user_predictions):,} evaluated users
+    ({high_risk_pct:.1%}) are classified as high risk.
+
+    **Observed engagement:** Churned users averaged
+    **{churned_engagement["active_days"]:.1f} active days**
+    compared with **{non_churned_engagement["active_days"]:.1f}**
+    for non-churned users.
+
+    **Recent activity:** Churned users averaged
+    **{churned_engagement["days_since_last_activity"]:.1f} days**
+    since their last activity, compared with
+    **{non_churned_engagement["days_since_last_activity"]:.1f} days**
+    for non-churned users.
+
+    **Model signal:** The Random Forest identifies
+    user subscription history and activity recency among
+    the features contributing most to its predictions.
+    """
+)
 
 # ===================================
 # USER BEHAVIORAL CONTEXT
