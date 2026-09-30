@@ -358,6 +358,36 @@ selected_user_data = df[
     df["user_id"] == selected_user
 ]
 
+selected_prediction = user_predictions[
+    user_predictions["user_id"] == selected_user
+]
+
+if not selected_prediction.empty:
+
+    prediction_row = selected_prediction.iloc[0]
+
+    st.markdown("### 🎯 User Risk Profile")
+
+    profile_col1, profile_col2, profile_col3 = st.columns(3)
+
+    with profile_col1:
+        st.metric(
+            "Churn Probability",
+            f"{prediction_row['churn_probability']:.1%}"
+        )
+
+    with profile_col2:
+        st.metric(
+            "Risk Segment",
+            prediction_row["risk_segment"]
+        )
+
+    with profile_col3:
+        st.metric(
+            "Actual Churn",
+            "Yes" if prediction_row["actual_churn"] == 1 else "No"
+        )
+
 if not selected_user_data.empty:
 
     user_row = selected_user_data.iloc[0]
