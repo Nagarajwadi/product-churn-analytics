@@ -2,6 +2,7 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     classification_report,
     confusion_matrix,
@@ -90,6 +91,17 @@ model.fit(
     y_train
 )
 
+# Random Forest model
+rf_model = RandomForestClassifier(
+    n_estimators=300,
+    max_depth=6,
+    min_samples_leaf=5,
+    class_weight="balanced",
+    random_state=42,
+    n_jobs=-1
+)
+
+rf_model.fit(X_train, y_train)
 
 # --------------------------------------------------
 # Predictions
@@ -186,3 +198,30 @@ print(
         ["feature", "coefficient"]
     ].to_string(index=False)
 )
+
+# ===================================
+# RANDOM FOREST EVALUATION
+# ===================================
+
+print("\n===================================")
+print("RANDOM FOREST EVALUATION")
+print("===================================")
+
+rf_predictions = rf_model.predict(X_test)
+rf_probability = rf_model.predict_proba(X_test)[:, 1]
+
+print("\nClassification report:")
+print(classification_report(y_test, rf_predictions))
+
+print("Confusion matrix:")
+print(confusion_matrix(y_test, rf_predictions))
+
+rf_roc_auc = roc_auc_score(y_test, rf_probability)
+rf_pr_auc = average_precision_score(y_test, rf_probability)
+
+print("\n===================================")
+print("RANDOM FOREST PROBABILITY METRICS")
+print("===================================")
+
+print(f"ROC-AUC: {rf_roc_auc:.3f}")
+print(f"PR-AUC:  {rf_pr_auc:.3f}")
