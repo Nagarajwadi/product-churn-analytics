@@ -26,7 +26,40 @@ feature_metrics AS (
         SUM(CASE WHEN e.event_name = 'search' THEN 1 ELSE 0 END) AS search_count,
         SUM(CASE WHEN e.event_name = 'add_to_cart' THEN 1 ELSE 0 END) AS add_to_cart_count,
         SUM(CASE WHEN e.event_name = 'purchase' THEN 1 ELSE 0 END) AS purchase_count,
-        SUM(CASE WHEN e.event_name = 'subscription' THEN 1 ELSE 0 END) AS subscription_count
+                SUM(CASE WHEN e.event_name = 'subscription' THEN 1 ELSE 0 END) AS subscription_count,
+
+        -- Recency features as of April 30, 2026
+        CAST(
+            JULIANDAY('2026-04-30') -
+            JULIANDAY(MAX(DATE(e.timestamp)))
+            AS INTEGER
+        ) AS days_since_last_activity,
+
+        CAST(
+            JULIANDAY('2026-04-30') -
+            JULIANDAY(
+                MAX(
+                    CASE
+                        WHEN e.event_name = 'login'
+                        THEN DATE(e.timestamp)
+                    END
+                )
+            )
+            AS INTEGER
+        ) AS days_since_last_login,
+
+        CAST(
+            JULIANDAY('2026-04-30') -
+            JULIANDAY(
+                MAX(
+                    CASE
+                        WHEN e.event_name = 'view_product'
+                        THEN DATE(e.timestamp)
+                    END
+                )
+            )
+            AS INTEGER
+        ) AS days_since_last_product_view
 
     FROM clean_events e
     INNER JOIN eligible_users u
@@ -62,6 +95,9 @@ SELECT
     f.add_to_cart_count,
     f.purchase_count,
     f.subscription_count,
+    f.days_since_last_activity,
+    f.days_since_last_login,
+    f.days_since_last_product_view,
 
     -- Behavioral features
     ROUND(

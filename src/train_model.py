@@ -47,6 +47,9 @@ features = [
     "search_rate",
     "cart_rate",
     "purchase_rate",
+    "days_since_last_activity",
+    "days_since_last_login",
+    "days_since_last_product_view",
 ]
 
 X = df[features]
