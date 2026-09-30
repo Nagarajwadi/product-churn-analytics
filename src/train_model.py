@@ -364,3 +364,15 @@ threshold_results_df.to_csv(
 
 print("\nModel results saved to:")
 print("data/processed/model_results.csv")
+
+# ===================================
+# SAVE FEATURE IMPORTANCE
+# ===================================
+
+feature_importance.to_csv(
+    "data/processed/feature_importance.csv",
+    index=False
+)
+
+print("\nFeature importance saved to:")
+print("data/processed/feature_importance.csv")

@@ -236,32 +236,13 @@ with col2:
 
 st.subheader("🔍 Churn Prediction Feature Importance")
 
-feature_importance = pd.DataFrame({
-    "feature": [
-        "subscription_count",
-        "days_since_last_product_view",
-        "days_since_last_login",
-        "days_since_last_activity",
-        "purchase_rate",
-        "purchase_count",
-        "total_events",
-        "sessions_per_active_day",
-        "cart_rate",
-        "total_sessions"
-    ],
-    "importance": [
-        0.388617,
-        0.114941,
-        0.112845,
-        0.081866,
-        0.077922,
-        0.045985,
-        0.031120,
-        0.018541,
-        0.017503,
-        0.017250
-    ]
-})
+FEATURE_IMPORTANCE_PATH = (
+    "data/processed/feature_importance.csv"
+)
+
+feature_importance = pd.read_csv(
+    FEATURE_IMPORTANCE_PATH
+)
 
 feature_importance = feature_importance.sort_values(
     "importance",
@@ -270,4 +251,10 @@ feature_importance = feature_importance.sort_values(
 
 st.bar_chart(
     feature_importance.set_index("feature")
+)
+
+st.caption(
+    "Feature importance shows how much each feature contributed "
+    "to the Random Forest's predictions. It does not indicate "
+    "whether a feature increases or decreases churn."
 )
