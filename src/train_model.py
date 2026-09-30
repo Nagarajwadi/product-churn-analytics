@@ -291,3 +291,22 @@ for threshold in thresholds:
         f"Recall: {recall:.3f}"
     )
 
+# ===================================
+# RANDOM FOREST FEATURE IMPORTANCE
+# ===================================
+
+print("\n===================================")
+print("RANDOM FOREST FEATURE IMPORTANCE")
+print("===================================")
+
+feature_importance = pd.DataFrame({
+    "feature": features,
+    "importance": rf_model.feature_importances_
+})
+
+feature_importance = feature_importance.sort_values(
+    by="importance",
+    ascending=False
+)
+
+print(feature_importance.to_string(index=False))
