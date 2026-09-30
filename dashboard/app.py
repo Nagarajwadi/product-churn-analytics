@@ -321,6 +321,27 @@ with risk_col4:
         high_probability_users
     )
 
+
+# ===================================
+# RISK SEGMENT DISTRIBUTION
+# ===================================
+
+st.subheader("📊 Risk Segment Distribution")
+
+risk_distribution = (
+    user_predictions["risk_segment"]
+    .value_counts()
+    .reindex(["High", "Medium", "Low"])
+    .fillna(0)
+)
+
+st.bar_chart(risk_distribution)
+
+st.caption(
+    "Distribution of predicted churn risk among the model's "
+    "held-out test users."
+)
+
 # ===================================
 # USER CHURN RISK TABLE
 # ===================================
