@@ -261,10 +261,8 @@ st.caption(
 
 
 # ===================================
-# USER CHURN RISK TABLE
+# LOAD USER CHURN PREDICTIONS
 # ===================================
-
-st.subheader("👥 Users by Predicted Churn Risk")
 
 PREDICTIONS_PATH = (
     "data/processed/user_churn_predictions.csv"
@@ -273,6 +271,60 @@ PREDICTIONS_PATH = (
 user_predictions = pd.read_csv(
     PREDICTIONS_PATH
 )
+
+
+# ===================================
+# USER RISK SUMMARY
+# ===================================
+
+st.subheader("📌 Churn Risk Summary")
+
+high_risk_users = (
+    user_predictions["risk_segment"] == "High"
+).sum()
+
+medium_risk_users = (
+    user_predictions["risk_segment"] == "Medium"
+).sum()
+
+low_risk_users = (
+    user_predictions["risk_segment"] == "Low"
+).sum()
+
+high_probability_users = (
+    user_predictions["churn_probability"] >= 0.50
+).sum()
+
+risk_col1, risk_col2, risk_col3, risk_col4 = st.columns(4)
+
+with risk_col1:
+    st.metric(
+        "🔴 High Risk",
+        high_risk_users
+    )
+
+with risk_col2:
+    st.metric(
+        "🟡 Medium Risk",
+        medium_risk_users
+    )
+
+with risk_col3:
+    st.metric(
+        "🟢 Low Risk",
+        low_risk_users
+    )
+
+with risk_col4:
+    st.metric(
+        "🎯 Probability ≥ 50%",
+        high_probability_users
+    )
+
+# ===================================
+# USER CHURN RISK TABLE
+# ===================================
+
 
 risk_filter = st.selectbox(
     "Risk Segment",
