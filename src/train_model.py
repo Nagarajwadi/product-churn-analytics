@@ -310,3 +310,57 @@ feature_importance = feature_importance.sort_values(
 )
 
 print(feature_importance.to_string(index=False))
+
+
+
+# ===================================
+# SAVE THRESHOLD RESULTS
+# ===================================
+
+threshold_results = []
+
+for threshold in thresholds:
+
+    threshold_predictions = (
+        rf_probability >= threshold
+    ).astype(int)
+
+    threshold_report = classification_report(
+        y_test,
+        threshold_predictions,
+        output_dict=True,
+        zero_division=0
+    )
+
+    true_positives = (
+        ((threshold_predictions == 1) & (y_test == 1))
+        .sum()
+    )
+
+    false_positives = (
+        ((threshold_predictions == 1) & (y_test == 0))
+        .sum()
+    )
+
+    users_targeted = (
+        threshold_predictions == 1
+    ).sum()
+
+    threshold_results.append({
+        "threshold": threshold,
+        "users_targeted": users_targeted,
+        "true_churners_identified": true_positives,
+        "false_positives": false_positives,
+        "precision": threshold_report["1"]["precision"],
+        "recall": threshold_report["1"]["recall"]
+    })
+
+threshold_results_df = pd.DataFrame(threshold_results)
+
+threshold_results_df.to_csv(
+    "data/processed/model_results.csv",
+    index=False
+)
+
+print("\nModel results saved to:")
+print("data/processed/model_results.csv")
