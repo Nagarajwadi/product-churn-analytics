@@ -269,7 +269,7 @@ def generate_user_events(user):
         if random.random() < cancellation_probability:
 
             # Cancellation happens AFTER subscription
-            cancellation_day = random.randint(1, 30)
+            cancellation_day = random.randint(30, 90)
 
             cancellation_time = (
                 subscription_time

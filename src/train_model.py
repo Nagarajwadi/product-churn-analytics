@@ -2,7 +2,12 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+    average_precision_score,
+)
 
 
 # --------------------------------------------------
@@ -29,12 +34,19 @@ print(f"Loaded {len(df):,} users.")
 
 features = [
     "total_events",
+    "total_sessions",
+    "active_days",
     "login_count",
     "product_view_count",
     "search_count",
     "add_to_cart_count",
     "purchase_count",
     "subscription_count",
+    "events_per_active_day",
+    "sessions_per_active_day",
+    "search_rate",
+    "cart_rate",
+    "purchase_rate",
 ]
 
 X = df[features]
@@ -52,7 +64,6 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42,
     stratify=y
 )
-
 
 print()
 print("Training users:", len(X_train))
@@ -83,9 +94,12 @@ model.fit(
 
 y_pred = model.predict(X_test)
 
+# Probability of churn
+y_probability = model.predict_proba(X_test)[:, 1]
+
 
 # --------------------------------------------------
-# Evaluation
+# Classification evaluation
 # --------------------------------------------------
 
 print()
@@ -110,4 +124,62 @@ print(
         y_test,
         y_pred
     )
+)
+
+
+# --------------------------------------------------
+# Probability-based metrics
+# --------------------------------------------------
+
+roc_auc = roc_auc_score(
+    y_test,
+    y_probability
+)
+
+pr_auc = average_precision_score(
+    y_test,
+    y_probability
+)
+
+print()
+print("===================================")
+print("PROBABILITY METRICS")
+print("===================================")
+
+print(
+    f"ROC-AUC: {roc_auc:.3f}"
+)
+
+print(
+    f"PR-AUC:  {pr_auc:.3f}"
+)
+
+
+# --------------------------------------------------
+# Feature coefficients
+# --------------------------------------------------
+
+coefficients = pd.DataFrame({
+    "feature": features,
+    "coefficient": model.coef_[0]
+})
+
+coefficients["absolute_coefficient"] = (
+    coefficients["coefficient"].abs()
+)
+
+coefficients = coefficients.sort_values(
+    "absolute_coefficient",
+    ascending=False
+)
+
+print()
+print("===================================")
+print("FEATURE COEFFICIENTS")
+print("===================================")
+
+print(
+    coefficients[
+        ["feature", "coefficient"]
+    ].to_string(index=False)
 )
