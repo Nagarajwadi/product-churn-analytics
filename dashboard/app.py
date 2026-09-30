@@ -342,6 +342,82 @@ st.caption(
     "held-out test users."
 )
 
+
+# ===================================
+# USER BEHAVIORAL CONTEXT
+# ===================================
+
+st.subheader("🔎 User Behavioral Context")
+
+selected_user = st.selectbox(
+    "Select a User ID",
+    user_predictions["user_id"].tolist()
+)
+
+selected_user_data = df[
+    df["user_id"] == selected_user
+]
+
+if not selected_user_data.empty:
+
+    user_row = selected_user_data.iloc[0]
+
+    behavior_col1, behavior_col2, behavior_col3, behavior_col4 = st.columns(4)
+
+    with behavior_col1:
+        st.metric(
+            "Total Events",
+            f"{int(user_row['total_events']):,}"
+        )
+
+    with behavior_col2:
+        st.metric(
+            "Active Days",
+            f"{int(user_row['active_days']):,}"
+        )
+
+    with behavior_col3:
+        st.metric(
+            "Login Count",
+            f"{int(user_row['login_count']):,}"
+        )
+
+    with behavior_col4:
+        st.metric(
+            "Days Since Activity",
+            f"{int(user_row['days_since_last_activity']):,}"
+        )
+
+    behavior_details = pd.DataFrame({
+        "Metric": [
+            "Total Sessions",
+            "Product Views",
+            "Searches",
+            "Add to Cart",
+            "Purchases",
+            "Subscriptions",
+            "Days Since Last Login",
+            "Days Since Last Product View"
+        ],
+        "Value": [
+            user_row["total_sessions"],
+            user_row["product_view_count"],
+            user_row["search_count"],
+            user_row["add_to_cart_count"],
+            user_row["purchase_count"],
+            user_row["subscription_count"],
+            user_row["days_since_last_login"],
+            user_row["days_since_last_product_view"]
+        ]
+    })
+
+    st.dataframe(
+        behavior_details,
+        hide_index=True,
+        use_container_width=True
+    )
+
+
 # ===================================
 # USER CHURN RISK TABLE
 # ===================================
