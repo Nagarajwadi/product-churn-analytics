@@ -225,3 +225,69 @@ print("===================================")
 
 print(f"ROC-AUC: {rf_roc_auc:.3f}")
 print(f"PR-AUC:  {rf_pr_auc:.3f}")
+
+
+# ===================================
+# THRESHOLD ANALYSIS
+# ===================================
+
+print("\n===================================")
+print("RANDOM FOREST THRESHOLD ANALYSIS")
+print("===================================")
+
+thresholds = [0.20, 0.30, 0.40, 0.50, 0.60]
+
+for threshold in thresholds:
+
+    threshold_predictions = (
+        rf_probability >= threshold
+    ).astype(int)
+
+    threshold_report = classification_report(
+        y_test,
+        threshold_predictions,
+        output_dict=True,
+        zero_division=0
+    )
+
+    precision = threshold_report["1"]["precision"]
+    recall = threshold_report["1"]["recall"]
+
+    true_positives = (
+        ((threshold_predictions == 1) & (y_test == 1))
+        .sum()
+    )
+
+    false_positives = (
+        ((threshold_predictions == 1) & (y_test == 0))
+        .sum()
+    )
+
+    users_targeted = (
+        threshold_predictions == 1
+    ).sum()
+
+    print(
+        f"\nThreshold: {threshold:.2f}"
+    )
+
+    print(
+        f"Users targeted: {users_targeted}"
+    )
+
+    print(
+        f"True churners identified: {true_positives}"
+    )
+
+    print(
+        f"False positives: {false_positives}"
+    )
+
+    print(
+        f"Precision: {precision:.3f}"
+    )
+
+    print(
+        f"Recall: {recall:.3f}"
+    )
+
