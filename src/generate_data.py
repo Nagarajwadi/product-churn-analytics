@@ -41,18 +41,6 @@ PLANS = [
     "premium",
 ]
 
-EVENTS = [
-    "signup",
-    "login",
-    "view_product",
-    "search",
-    "add_to_cart",
-    "purchase",
-    "subscription",
-    "cancel_subscription",
-    "logout",
-]
-
 
 # --------------------------------------------------
 # Date configuration
@@ -85,8 +73,9 @@ def generate_users(num_users):
 
     return pd.DataFrame(users)
 
+
 # --------------------------------------------------
-# Generate user behavior
+# Choose user behavior
 # --------------------------------------------------
 
 def choose_user_behavior():
@@ -96,7 +85,13 @@ def choose_user_behavior():
         k=1
     )[0]
 
+
+# --------------------------------------------------
+# Generate user events
+# --------------------------------------------------
+
 def generate_user_events(user):
+
     events = []
 
     behavior = choose_user_behavior()
@@ -110,7 +105,10 @@ def generate_user_events(user):
 
     session_id = 1
 
-    # Every user signs up
+    # --------------------------------------------------
+    # Signup
+    # --------------------------------------------------
+
     events.append({
         "user_id": user["user_id"],
         "timestamp": signup_time,
@@ -121,21 +119,39 @@ def generate_user_events(user):
         "session_id": f"{user['user_id']}_S{session_id:04d}"
     })
 
-    # Number of active days depends on behavior
+    # --------------------------------------------------
+    # Engagement level
+    # --------------------------------------------------
+
     if behavior == "high":
         active_days = random.randint(20, 60)
+        purchase_probability = 0.30
+        subscription_probability = 0.70
+        cancellation_probability = 0.10
 
     elif behavior == "medium":
         active_days = random.randint(7, 20)
+        purchase_probability = 0.15
+        subscription_probability = 0.40
+        cancellation_probability = 0.25
 
     else:
         active_days = random.randint(1, 6)
+        purchase_probability = 0.05
+        subscription_probability = 0.15
+        cancellation_probability = 0.50
+
+    purchased = False
+    subscribed = False
+    subscription_time = None
+
+    # --------------------------------------------------
+    # Generate activity
+    # --------------------------------------------------
 
     for day in range(active_days):
 
-        event_date = signup_time + timedelta(
-            days=day
-        )
+        event_date = signup_time + timedelta(days=day)
 
         if event_date > END_DATE:
             break
@@ -146,7 +162,7 @@ def generate_user_events(user):
             f"{user['user_id']}_S{session_id:04d}"
         )
 
-        # Every active day starts with a login
+        # Login
         events.append({
             "user_id": user["user_id"],
             "timestamp": event_date,
@@ -157,7 +173,7 @@ def generate_user_events(user):
             "session_id": current_session
         })
 
-        # Product activity
+        # Product view
         events.append({
             "user_id": user["user_id"],
             "timestamp": event_date + timedelta(
@@ -170,7 +186,7 @@ def generate_user_events(user):
             "session_id": current_session
         })
 
-        # Some users search
+        # Search
         if random.random() < 0.60:
             events.append({
                 "user_id": user["user_id"],
@@ -184,7 +200,7 @@ def generate_user_events(user):
                 "session_id": current_session
             })
 
-        # Some users add to cart
+        # Add to cart
         if random.random() < 0.35:
             events.append({
                 "user_id": user["user_id"],
@@ -198,13 +214,19 @@ def generate_user_events(user):
                 "session_id": current_session
             })
 
-        # Some users purchase
-        if random.random() < 0.15:
+        # --------------------------------------------------
+        # Purchase
+        # --------------------------------------------------
+
+        if not purchased and random.random() < purchase_probability:
+
+            purchase_time = event_date + timedelta(
+                minutes=random.randint(91, 120)
+            )
+
             events.append({
                 "user_id": user["user_id"],
-                "timestamp": event_date + timedelta(
-                    minutes=random.randint(91, 120)
-                ),
+                "timestamp": purchase_time,
                 "event_name": "purchase",
                 "device": user["device"],
                 "country": user["country"],
@@ -212,11 +234,69 @@ def generate_user_events(user):
                 "session_id": current_session
             })
 
+            purchased = True
+
+            # --------------------------------------------------
+            # Subscription after purchase
+            # --------------------------------------------------
+
+            if random.random() < subscription_probability:
+
+                subscription_time = purchase_time + timedelta(
+                    minutes=random.randint(5, 30)
+                )
+
+                if subscription_time <= END_DATE:
+
+                    events.append({
+                        "user_id": user["user_id"],
+                        "timestamp": subscription_time,
+                        "event_name": "subscription",
+                        "device": user["device"],
+                        "country": user["country"],
+                        "plan": user["plan"],
+                        "session_id": current_session
+                    })
+
+                    subscribed = True
+
+    # --------------------------------------------------
+    # Cancellation / churn
+    # --------------------------------------------------
+
+    if subscribed and subscription_time is not None:
+
+        if random.random() < cancellation_probability:
+
+            # Cancellation happens AFTER subscription
+            cancellation_day = random.randint(1, 30)
+
+            cancellation_time = (
+                subscription_time
+                + timedelta(days=cancellation_day)
+            )
+
+            if cancellation_time <= END_DATE:
+
+                events.append({
+                    "user_id": user["user_id"],
+                    "timestamp": cancellation_time,
+                    "event_name": "cancel_subscription",
+                    "device": user["device"],
+                    "country": user["country"],
+                    "plan": user["plan"],
+                    "session_id": f"{user['user_id']}_S{session_id:04d}"
+                })
+
     return events
 
 
+# --------------------------------------------------
+# Generate full dataset
+# --------------------------------------------------
 
 if __name__ == "__main__":
+
     print("Generating users...")
 
     users = generate_users(NUM_USERS)
@@ -228,22 +308,30 @@ if __name__ == "__main__":
 
     all_events = []
 
-    for index, (_, user) in enumerate(users.iterrows(), start=1):
+    for index, (_, user) in enumerate(
+        users.iterrows(),
+        start=1
+    ):
 
-        user_events = generate_user_events(user.to_dict())
+        user_events = generate_user_events(
+            user.to_dict()
+        )
+
         all_events.extend(user_events)
 
         if index % 500 == 0:
-            print(f"Processed {index}/{NUM_USERS} users...")
+            print(
+                f"Processed {index}/{NUM_USERS} users..."
+            )
 
     events_df = pd.DataFrame(all_events)
 
-    # Sort events by timestamp
+    # Sort events
     events_df = events_df.sort_values(
         ["user_id", "timestamp"]
     ).reset_index(drop=True)
 
-    # Save raw dataset
+    # Save dataset
     output_path = "data/raw/raw_events.csv"
 
     events_df.to_csv(
@@ -261,7 +349,11 @@ if __name__ == "__main__":
 
     print()
     print("Event types:")
-    print(events_df["event_name"].value_counts())
+
+    print(
+        events_df["event_name"]
+        .value_counts()
+    )
 
     print()
     print(f"Saved to: {output_path}")
