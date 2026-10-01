@@ -88,7 +88,7 @@ st.write(
 
 st.dataframe(
     df.head(10),
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -134,7 +134,7 @@ engagement_summary = (
 
 st.dataframe(
     engagement_summary.round(2),
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -484,7 +484,7 @@ if not selected_user_data.empty:
     st.dataframe(
         behavior_details,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -529,5 +529,5 @@ st.dataframe(
             "Actual Churn"
         ]
     ],
-    use_container_width=True
+    width="stretch"
 )
