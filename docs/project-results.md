@@ -242,6 +242,7 @@ This project is designed as a portfolio demonstration using synthetic data, so s
 - Random Forest feature importance shows predictive contribution, not causality.
 - The strong importance of `subscription_count` is partly influenced by the synthetic churn-generation logic.
 - A production implementation would require real customer data, leakage checks, model monitoring, calibration analysis, and business-defined intervention costs.
+- A calibration experiment using sigmoid calibration reduced the Brier score from 0.0877 to 0.0221 and brought the mean predicted probability from 17.22% closer to the observed test churn rate of 2.72%. Calibrated performance was lower on ranking metrics (ROC-AUC 0.939; PR-AUC 0.366), so the current dashboard uses the raw Random Forest output as a risk score rather than a literal probability.
 
 These limitations are important when interpreting the model results and demonstrate why predictive analytics should be evaluated in the context of both data quality and business requirements.
 
