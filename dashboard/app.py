@@ -220,13 +220,13 @@ col1, col2 = st.columns(2)
 with col1:
     st.metric(
         "Random Forest ROC-AUC",
-        "0.946"
+        "0.953"
     )
 
 with col2:
     st.metric(
         "Random Forest PR-AUC",
-        "0.383"
+        "0.402"
     )
 
 
