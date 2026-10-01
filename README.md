@@ -110,27 +110,16 @@ Because churn is relatively rare in the dataset, model performance is evaluated 
 
 The final Random Forest model produces a churn probability for each user in the held-out test set. These probabilities are also used to create Low, Medium and High risk segments for the dashboard.
 
-## Machine Learning
-
-Two classification models were evaluated for predicting user churn:
-
-- **Logistic Regression** — provides an interpretable baseline and feature coefficients.
-- **Random Forest** — captures nonlinear relationships between product behavior and churn risk.
-
-Because churn is relatively rare in the dataset, model performance is evaluated using **ROC-AUC** and **PR-AUC**, rather than relying on accuracy alone.
-
-The final Random Forest model produces a churn probability for each user in the held-out test set. These probabilities are also used to create Low, Medium and High risk segments for the dashboard.
-
 ## Model Evaluation
 
 The models were evaluated on a stratified held-out test set.
 
 | Model | ROC-AUC | PR-AUC |
 |---|---:|---:|
-| Logistic Regression | 0.930 | 0.167 |
-| Random Forest | **0.946** | **0.383** |
+| Logistic Regression | 0.931 | 0.168 |
+| Random Forest | **0.953** | **0.402** |
 
-The Random Forest achieved a ROC-AUC of **0.946** and PR-AUC of **0.383** on the test set. PR-AUC is particularly relevant because the churn class is highly imbalanced.
+The Random Forest achieved a ROC-AUC of **0.953** and PR-AUC of **0.402** on the held-out synthetic test set. PR-AUC is particularly relevant because the churn class is highly imbalanced.
 
 The model is used as a ranking and risk-estimation tool rather than as a definitive classification of whether an individual user will churn.
 
@@ -140,11 +129,11 @@ Different probability thresholds produce different trade-offs between identifyin
 
 | Threshold | Users Targeted | Churners Identified | False Positives | Precision | Recall |
 |---:|---:|---:|---:|---:|---:|
-| 0.20 | 133 | 17 | 116 | 0.128 | 0.944 |
+| 0.20 | 137 | 17 | 120 | 0.124 | 0.944 |
 | 0.30 | 129 | 17 | 112 | 0.132 | 0.944 |
 | 0.40 | 119 | 16 | 103 | 0.134 | 0.889 |
 | 0.50 | 113 | 16 | 97 | 0.142 | 0.889 |
-| 0.60 | 96 | 16 | 80 | 0.167 | 0.889 |
+| 0.60 | 99 | 16 | 83 | 0.162 | 0.889 |
 
 A lower threshold identifies more potential churners but also increases the number of false positives. A higher threshold reduces the number of users targeted while identifying a smaller set of high-probability cases.
 
@@ -180,6 +169,25 @@ The analysis surfaces several product-level signals associated with churn risk:
 - Threshold analysis demonstrates the operational trade-off between reaching more users and increasing false positives.
 
 These findings represent observed patterns in the synthetic dataset and model signals. They should not be interpreted as causal relationships.
+
+## 📚 Project Case Study
+
+A detailed recruiter-facing case study is available here:
+
+**[Product Results & Analysis](docs/project-results.md)**
+
+The case study covers:
+
+- Business problem
+- Data and ETL pipeline
+- Churn definition and feature engineering
+- Exploratory analysis
+- Model evaluation
+- Threshold analysis
+- Feature importance
+- Product insights
+- Dashboard
+- Limitations
 
 ## Limitations
 
