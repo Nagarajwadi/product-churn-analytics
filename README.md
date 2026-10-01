@@ -2,6 +2,8 @@
 
 End-to-end Product Analytics and Churn Prediction project using **Python, SQL, ETL, Machine Learning, and Streamlit**.
 
+![Product Churn Analytics Dashboard](docs/dashboard-overview.png)
+
 ## 📌 Project Overview
 
 This project analyzes user behavior for a fictional subscription-based productivity application and builds a machine-learning pipeline to identify users at risk of churn.
