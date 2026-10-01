@@ -238,7 +238,7 @@ This project is designed as a portfolio demonstration using synthetic data, so s
 - The churn rate and behavioral patterns are determined by the data-generation process.
 - The churn outcome is based on a fixed observation window rather than a production retention definition.
 - The dataset contains relatively few churned users, which limits statistical power.
-- Model performance was evaluated on a single train/test split rather than through production monitoring or repeated cross-validation.
+- The primary model evaluation uses a single 80/20 train/test split, supplemented by 5-fold stratified cross-validation as a robustness check. Production deployment would require time-based validation and ongoing model monitoring.
 - Random Forest feature importance shows predictive contribution, not causality.
 - The strong importance of `subscription_count` is partly influenced by the synthetic churn-generation logic.
 - A production implementation would require real customer data, leakage checks, model monitoring, calibration analysis, and business-defined intervention costs.
