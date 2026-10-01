@@ -412,7 +412,7 @@ if not selected_prediction.empty:
 
     with profile_col1:
         st.metric(
-            "Churn Probability",
+            "Churn Risk Score",
             f"{prediction_row['churn_probability']:.1%}"
         )
 
@@ -515,7 +515,7 @@ display_predictions = display_predictions.rename(
     columns={
         "user_id": "User ID",
         "actual_churn": "Actual Churn",
-        "churn_probability": "Churn Probability (%)",
+        "churn_probability": "Churn Risk Score (%)",
         "risk_segment": "Risk Segment"
     }
 )
@@ -524,7 +524,7 @@ st.dataframe(
     display_predictions[
         [
             "User ID",
-            "Churn Probability (%)",
+            "Churn Risk Score (%)",
             "Risk Segment",
             "Actual Churn"
         ]
