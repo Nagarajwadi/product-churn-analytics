@@ -162,6 +162,20 @@ Activity recency and purchase-related features contribute substantially to the m
 
 Feature importance indicates contribution to Random Forest predictions and does not establish the direction or causality of a relationship.
 
+### Robustness Check: Removing Subscription History
+
+Because `subscription_count` is closely related to churn eligibility in the synthetic dataset, a controlled experiment was performed by removing this feature and retraining the Random Forest using the same train/test split and model configuration.
+
+| Random Forest configuration | ROC-AUC | PR-AUC |
+|---|---:|---:|
+| With `subscription_count` | 0.953 | 0.402 |
+| Without `subscription_count` | 0.899 | 0.361 |
+
+The model retained substantial predictive signal after removing `subscription_count`, with ROC-AUC of 0.899 and PR-AUC of 0.361. This suggests that behavioral and recency features also contribute meaningful predictive information.
+
+This robustness check does not remove the dataset-design limitation, but it provides additional context when interpreting the model's performance and feature importance.
+
+
 ## Product Analytics Insights
 
 The project translates the model outputs into product-oriented insights rather than treating the model as an isolated machine-learning exercise.
