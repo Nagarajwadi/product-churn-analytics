@@ -37,7 +37,7 @@ Churn Feature Dataset
         ↓
 Machine Learning
         ↓
-Churn Probability
+Churn Risk Score
         ↓
 Risk Segmentation
         ↓
@@ -108,7 +108,7 @@ Two classification models were evaluated for predicting user churn:
 
 Because churn is relatively rare in the dataset, model performance is evaluated using **ROC-AUC** and **PR-AUC**, rather than relying on accuracy alone.
 
-The final Random Forest model produces a churn probability for each user in the held-out test set. These probabilities are also used to create Low, Medium and High risk segments for the dashboard.
+The final Random Forest model produces a churn risk score for each user in the held-out test set. These scores are used to create Low, Medium and High risk segments for the dashboard. Because the raw Random Forest outputs are not calibrated probabilities, the dashboard presents them as risk scores rather than literal probabilities.
 
 ## Model Evaluation
 
@@ -119,13 +119,34 @@ The models were evaluated on a stratified held-out test set.
 | Logistic Regression | 0.931 | 0.168 |
 | Random Forest | **0.953** | **0.402** |
 
+### Cross-Validation Stability
+
+A 5-fold stratified cross-validation experiment was performed as a robustness check using the same Random Forest configuration.
+
+| Metric | Mean | Std. Dev. |
+|---|---:|---:|
+| ROC-AUC | 0.919 | 0.013 |
+| PR-AUC | 0.244 | 0.054 |
+
+ROC-AUC showed relatively low variation across folds, while PR-AUC showed greater variation. The cross-validation results provide a more conservative view of model performance than relying only on the single 80/20 holdout split.
+
+### Permutation Importance
+
+Permutation importance was evaluated on the held-out test set using PR-AUC as the scoring metric. The results provide an additional view of which features contribute to predictive performance.
+
+The strongest permutation signal came from `subscription_count`, followed by activity recency features such as `days_since_last_login`, `days_since_last_product_view`, and `days_since_last_activity`.
+
+These results broadly support the Random Forest's built-in feature importance analysis. However, `subscription_count` requires caution because the synthetic churn definition requires a prior subscription before a cancellation event can occur.
+
+Permutation importance measures the effect of disrupting a feature on model performance. It does not indicate the direction of the relationship and does not establish causality.
+
 The Random Forest achieved a ROC-AUC of **0.953** and PR-AUC of **0.402** on the held-out synthetic test set. PR-AUC is particularly relevant because the churn class is highly imbalanced.
 
 The model is used as a ranking and risk-estimation tool rather than as a definitive classification of whether an individual user will churn.
 
 ## Threshold Analysis & Business Interpretation
 
-Different probability thresholds produce different trade-offs between identifying churners and the number of users targeted for intervention.
+Different risk-score thresholds produce different trade-offs between identifying churners and the number of users targeted for intervention.
 
 | Threshold | Users Targeted | Churners Identified | False Positives | Precision | Recall |
 |---:|---:|---:|---:|---:|---:|
@@ -135,7 +156,7 @@ Different probability thresholds produce different trade-offs between identifyin
 | 0.50 | 113 | 16 | 97 | 0.142 | 0.889 |
 | 0.60 | 99 | 16 | 83 | 0.162 | 0.889 |
 
-A lower threshold identifies more potential churners but also increases the number of false positives. A higher threshold reduces the number of users targeted while identifying a smaller set of high-probability cases.
+A lower threshold identifies more potential churners but also increases the number of false positives. A higher threshold reduces the number of users targeted while identifying a smaller set of high-risk cases.
 
 The appropriate operating threshold depends on the business cost of customer-retention interventions and the relative cost of missing a potential churner. The project therefore presents threshold analysis rather than declaring a universally optimal threshold.
 
@@ -150,9 +171,9 @@ Dashboard components include:
 - Average engagement by churn status
 - Random Forest feature importance
 - Churn-risk distribution across held-out test users
-- Adjustable probability threshold analysis
+- Adjustable risk-score threshold analysis
 - Individual user behavioral context
-- Individual user churn probability and risk segment
+- Individual user churn-risk score and risk segment
 - Filterable user churn-risk table
 - Product-level insights based on observed user behavior and model signals
 
