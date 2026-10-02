@@ -2,6 +2,9 @@
 
 End-to-end Product Analytics and Churn Prediction project using **Python, SQL, ETL, Machine Learning, and Streamlit**.
 
+🌐 **[Project Website](https://nagarajwadi.github.io/product-churn-analytics/)** · 📊 **[Live Interactive Dashboard](https://churn-analytics-nagaraj.streamlit.app)** · 💻 **[GitHub Repository](https://github.com/Nagarajwadi/product-churn-analytics)**
+
+
 ![Product Churn Analytics Dashboard](docs/dashboard-overview.png)
 
 ## 📌 Project Overview
