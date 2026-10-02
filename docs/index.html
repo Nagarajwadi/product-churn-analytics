@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product User Churn Prediction & Analytics</title>
+  <meta name="description" content="End-to-end product analytics and machine learning project for user churn prediction.">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      color: #172033;
+      background: #f7f9fc;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: auto;
+    }
+
+    nav {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e9f0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      font-size: 14px;
+      color: #536074;
+    }
+
+    .nav-links a:hover {
+      color: #111827;
+    }
+
+    .hero {
+      padding: 90px 0 70px;
+      background: linear-gradient(135deg, #eef4ff, #ffffff);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      background: #e5edff;
+      color: #3159b7;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 5vw, 62px);
+      line-height: 1.08;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #536074;
+      max-width: 720px;
+      margin-bottom: 28px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 14px;
+      border: 1px solid #d5dce8;
+      background: #ffffff;
+    }
+
+    .button.primary {
+      background: #172033;
+      color: white;
+      border-color: #172033;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      border: 1px solid #e1e6ef;
+      box-shadow: 0 8px 30px rgba(20, 30, 50, .05);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 3px;
+    }
+
+    .stat span {
+      color: #667085;
+      font-size: 13px;
+    }
+
+    section {
+      padding: 75px 0;
+    }
+
+    .section-title {
+      font-size: 34px;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+
+    .section-intro {
+      color: #667085;
+      max-width: 760px;
+      margin-bottom: 35px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e1e6ef;
+      border-radius: 14px;
+      padding: 25px;
+    }
+
+    .card h3 {
+      margin-bottom: 9px;
+      font-size: 19px;
+    }
+
+    .card p {
+      color: #667085;
+      font-size: 15px;
+    }
+
+    .architecture {
+      background: #172033;
+      color: white;
+    }
+
+    .architecture .section-intro {
+      color: #c8d0df;
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 30px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .flow-item {
+      background: #26334d;
+      border: 1px solid #3b4964;
+      border-radius: 10px;
+      padding: 13px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 105px;
+      flex-shrink: 0;
+    }
+
+    .flow-item small {
+      display: block;
+      margin-top: 5px;
+      color: #c8d0df;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .arrow {
+      color: #9eabc0;
+      font-size: 20px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .metric-panel {
+      background: white;
+      border: 1px solid #e1e6ef;
+      border-radius: 14px;
+      padding: 28px;
+    }
+
+    .metric-panel h3 {
+      margin-bottom: 18px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #edf0f5;
+      padding: 11px 0;
+      font-size: 14px;
+    }
+
+    .metric-row:last-child {
+      border-bottom: 0;
+    }
+
+    .metric-value {
+      font-weight: 800;
+    }
+
+    .dashboard-image {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #dfe5ee;
+      margin-top: 15px;
+      box-shadow: 0 15px 40px rgba(20, 30, 50, .08);
+    }
+
+    .callout {
+      background: #ffffff;
+      border: 1px solid #dce3ee;
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 25px;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    footer {
+      background: #111827;
+      color: #cbd5e1;
+      padding: 35px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: white;
+      font-weight: 700;
+    }
+
+    @media (max-width: 800px) {
+      .hero-grid,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 60px;
+      }
+
+      h1 {
+        letter-spacing: -1px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="brand">Product Churn Analytics</div>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#results">Results</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#ml">Machine Learning</a>
+      <a href="https://churn-analytics-nagaraj.streamlit.app" target="_blank" rel="noopener">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">End-to-End Data Science & Product Analytics</span>
+
+      <h1>Product User Churn Prediction & Analytics</h1>
+
+      <p>
+        An end-to-end portfolio project combining Python, SQL, ETL,
+        product analytics, machine learning, model evaluation,
+        automated testing, and an interactive Streamlit dashboard.
+      </p>
+
+      <div class="buttons">
+        <a class="button primary"
+           href="https://github.com/Nagarajwadi/product-churn-analytics"
+           target="_blank">
+          View GitHub Repository
+        </a>
+
+        <a class="button" href="https://churn-analytics-nagaraj.streamlit.app" target="_blank" rel="noopener">
+          🚀 Live Interactive Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>5,000</strong>
+        <span>Users</span>
+      </div>
+
+      <div class="stat">
+        <strong>229K+</strong>
+        <span>Product Events</span>
+      </div>
+
+      <div class="stat">
+        <strong>17</strong>
+        <span>Predictive Features</span>
+      </div>
+
+      <div class="stat">
+        <strong>2.72%</strong>
+        <span>Churn Rate</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="overview">
+  <div class="container">
+    <h2 class="section-title">Project Overview</h2>
+
+    <p class="section-intro">
+      The project demonstrates how raw product event data can be transformed
+      into actionable product analytics and a machine-learning based churn
+      risk-ranking system.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3>Business Problem</h3>
+        <p>
+          Identify users showing behavioral signals associated with future
+          churn so product and retention teams can prioritize analysis and
+          potential interventions.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Data Engineering</h3>
+        <p>
+          Raw event data is cleaned, validated, transformed through an ETL
+          pipeline, and loaded into SQLite for analytical SQL workflows.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Machine Learning</h3>
+        <p>
+          Logistic Regression and Random Forest models are evaluated using
+          metrics appropriate for highly imbalanced churn classification.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="results">
+  <div class="container">
+    <h2 class="section-title">Results at a Glance</h2>
+
+    <p class="section-intro">
+      The project combines product analytics with machine learning to identify
+      behavioral signals associated with future churn and support retention
+      prioritization.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3>Dataset</h3>
+        <p>
+          5,000 users and more than 229,000 product events were generated
+          and processed through the ETL pipeline.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>ML Dataset</h3>
+        <p>
+          3,307 eligible users with 17 predictive features were used for
+          churn modeling.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Churn Rate</h3>
+        <p>
+          90 churners and 3,217 non-churners produced a churn rate of 2.72%,
+          creating a highly imbalanced classification problem.
+        </p>
+      </div>
+    </div>
+
+    <div class="metrics" style="margin-top: 24px;">
+      <div class="metric-panel">
+        <h3>Model Performance — 80/20 Holdout</h3>
+
+        <div class="metric-row">
+          <span>Logistic Regression ROC-AUC</span>
+          <span class="metric-value">0.931</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Logistic Regression PR-AUC</span>
+          <span class="metric-value">0.168</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Random Forest ROC-AUC</span>
+          <span class="metric-value">0.953</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Random Forest PR-AUC</span>
+          <span class="metric-value">0.402</span>
+        </div>
+      </div>
+
+      <div class="metric-panel">
+        <h3>Robustness — 5-Fold Cross-Validation</h3>
+
+        <div class="metric-row">
+          <span>Mean ROC-AUC</span>
+          <span class="metric-value">0.919</span>
+        </div>
+
+        <div class="metric-row">
+          <span>ROC-AUC Std. Dev.</span>
+          <span class="metric-value">0.013</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Mean PR-AUC</span>
+          <span class="metric-value">0.244</span>
+        </div>
+
+        <div class="metric-row">
+          <span>PR-AUC Std. Dev.</span>
+          <span class="metric-value">0.054</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>What the analysis found</strong>
+      <p>
+        Churned users showed lower average engagement and substantially higher
+        activity recency. Subscription history, activity recency, and
+        purchase-related features were important model signals. The
+        subscription_count result has an important synthetic-data caveat
+        because the churn definition is tied to cancellation after subscription.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" class="architecture">
+  <div class="container">
+    <h2 class="section-title">Project Architecture</h2>
+
+    <p class="section-intro">
+      The workflow connects data generation, ETL, SQL analytics,
+      feature engineering, machine learning, evaluation, and dashboarding.
+    </p>
+
+    <div class="flow">
+      <div class="flow-item">
+        Raw Events<br>
+        <small>Product activity data</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        Python ETL<br>
+        <small>Clean & validate</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        SQLite<br>
+        <small>Store clean events</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        SQL Features<br>
+        <small>User-level metrics</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        ML Dataset<br>
+        <small>17 predictive features</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        ML Models<br>
+        <small>LR + Random Forest</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        Risk Score<br>
+        <small>Prioritize users</small>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <div class="flow-item">
+        Dashboard<br>
+        <small>Product insights</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="analytics">
+  <div class="container">
+    <h2 class="section-title">Product Analytics</h2>
+
+    <p class="section-intro">
+      User behavior is summarized through engagement, session,
+      conversion, and recency features.
+    </p>
+
+    <div class="metrics">
+      <div class="metric-panel">
+        <h3>Engagement Features</h3>
+
+        <div class="metric-row">
+          <span>Total events</span>
+          <span class="metric-value">Count</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Total sessions</span>
+          <span class="metric-value">Count</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Active days</span>
+          <span class="metric-value">Count</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Logins / product views</span>
+          <span class="metric-value">Count</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Search / cart / purchase</span>
+          <span class="metric-value">Count + rates</span>
+        </div>
+      </div>
+
+      <div class="metric-panel">
+        <h3>Recency Features</h3>
+
+        <div class="metric-row">
+          <span>Days since last activity</span>
+          <span class="metric-value">Days</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Days since last login</span>
+          <span class="metric-value">Days</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Days since last product view</span>
+          <span class="metric-value">Days</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Events per active day</span>
+          <span class="metric-value">Rate</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Sessions per active day</span>
+          <span class="metric-value">Rate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ml">
+  <div class="container">
+    <h2 class="section-title">Machine Learning Results</h2>
+
+    <p class="section-intro">
+      The target is highly imbalanced, with churn representing only 2.72%
+      of eligible users. The project therefore emphasizes ROC-AUC,
+      PR-AUC, precision, recall, and threshold analysis rather than accuracy alone.
+    </p>
+
+    <div class="metrics">
+      <div class="metric-panel">
+        <h3>Holdout Evaluation</h3>
+
+        <div class="metric-row">
+          <span>Logistic Regression ROC-AUC</span>
+          <span class="metric-value">0.931</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Logistic Regression PR-AUC</span>
+          <span class="metric-value">0.168</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Random Forest ROC-AUC</span>
+          <span class="metric-value">0.953</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Random Forest PR-AUC</span>
+          <span class="metric-value">0.402</span>
+        </div>
+      </div>
+
+      <div class="metric-panel">
+        <h3>5-Fold Cross-Validation</h3>
+
+        <div class="metric-row">
+          <span>Mean ROC-AUC</span>
+          <span class="metric-value">0.919</span>
+        </div>
+
+        <div class="metric-row">
+          <span>ROC-AUC Std. Dev.</span>
+          <span class="metric-value">0.013</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Mean PR-AUC</span>
+          <span class="metric-value">0.244</span>
+        </div>
+
+        <div class="metric-row">
+          <span>PR-AUC Std. Dev.</span>
+          <span class="metric-value">0.054</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Model interpretation</strong>
+      <p>
+        Subscription history was the strongest feature, but it has an important
+        synthetic-data caveat: the churn definition is based on cancellation
+        after subscription. Activity recency and purchase-related behavior also
+        provide predictive signal. Feature importance indicates model contribution,
+        not causation.
+      </p>
+    </div>
+
+    <div class="callout">
+      <strong>Churn Risk Score</strong>
+      <p>
+        The dashboard uses the Random Forest output as a relative risk score
+        rather than a literal calibrated probability. Thresholds can be adjusted
+        to explore the trade-off between identifying potential churners and
+        targeting additional users.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="dashboard">
+  <div class="container">
+    <h2 class="section-title">Interactive Dashboard</h2>
+
+    <p class="section-intro">
+      The Streamlit dashboard brings together product KPIs, churn analysis,
+      model performance, feature importance, risk segmentation, and user-level
+      risk exploration.
+    </p>
+
+    <img
+      src="dashboard-overview.png"
+      alt="Product Churn Analytics Streamlit dashboard"
+      class="dashboard-image"
+    >
+
+    <div class="buttons" style="margin-top: 25px;">
+      <a class="button primary"
+         href="https://github.com/Nagarajwadi/product-churn-analytics"
+         target="_blank">
+        Open Project Repository
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">Engineering Quality</h2>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3>Automated Tests</h3>
+        <p>
+          Eight automated tests cover ETL behavior and ML dataset validation.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Continuous Integration</h3>
+        <p>
+          GitHub Actions automatically runs the project test suite.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Reproducibility</h3>
+        <p>
+          The project contains scripts, requirements, SQL, notebooks,
+          documentation, and validation workflows.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2 class="section-title">Limitations & Production Roadmap</h2>
+
+    <div class="card">
+      <p>
+        This is a production-style portfolio prototype using synthetic data.
+        A production implementation would require real product data, a
+        business-approved churn definition, point-in-time feature generation,
+        time-based validation, leakage auditing, probability calibration,
+        model monitoring, data-quality monitoring, and controlled experiments
+        to measure whether retention interventions actually reduce churn.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      Product User Churn Prediction & Analytics ·
+      <a href="https://github.com/Nagarajwadi/product-churn-analytics"
+         target="_blank">GitHub Repository</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
