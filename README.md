@@ -53,7 +53,8 @@ SQLite Database
         │
         └──→ REST API Enrichment
                   ↓
-             API-enriched User Analysis```
+             API-enriched User Analysis
+```
 
 ## Technologies
 
