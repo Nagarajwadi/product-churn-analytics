@@ -235,7 +235,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
     }
 
@@ -630,9 +630,24 @@
           <span class="metric-value">Count</span>
         </div>
 
+      </div>
+
+      <div class="metric-panel">
+        <h3>Conversion Features</h3>
+
         <div class="metric-row">
-          <span>Search / cart / purchase</span>
-          <span class="metric-value">Count + rates</span>
+          <span>Search rate</span>
+          <span class="metric-value">Rate</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Cart rate</span>
+          <span class="metric-value">Rate</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Purchase rate</span>
+          <span class="metric-value">Rate</span>
         </div>
       </div>
 
