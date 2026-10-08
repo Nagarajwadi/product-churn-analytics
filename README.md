@@ -33,18 +33,21 @@ Synthetic Product Events
 ETL Cleaning & Validation
         ↓
 SQLite Database
-        ↓
-SQL Product Metrics
-        ↓
-Churn Feature Dataset
-        ↓
-Machine Learning
-        ↓
-Churn Risk Score
-        ↓
-Risk Segmentation
-        ↓
-Interactive Streamlit Dashboard```
+        ├──→ SQL Product Metrics
+        │         ↓
+        │    Churn Feature Dataset
+        │         ↓
+        │    Machine Learning
+        │         ↓
+        │    Churn Risk Score
+        │         ↓
+        │    Risk Segmentation
+        │         ↓
+        │    Interactive Streamlit Dashboard
+        │
+        └──→ REST API Enrichment
+                  ↓
+             API-enriched User Analysis```
 
 ## Technologies
 
