@@ -297,7 +297,7 @@ The API integration includes:
 - Loading API data into SQLite
 - Joining API attributes with synthetic product-event data
 - API-enriched SQL analysis
-- Automated tests for API transformation logic
+- Automated tests for API requests, pagination, transformation, and ingestion validation
 
 ### API Pipeline
 
