@@ -344,7 +344,30 @@ risk_distribution = (
     .fillna(0)
 )
 
-st.bar_chart(risk_distribution)
+fig, ax = plt.subplots(figsize=(8, 5))
+bars = ax.bar(
+    risk_distribution.index,
+    risk_distribution.values
+)
+
+ax.set_ylabel("Users")
+ax.set_xlabel("Risk Segment")
+ax.set_title("Predicted Churn Risk Distribution")
+
+for bar in bars:
+    height = bar.get_height()
+    ax.annotate(
+        f"{int(height):,}",
+        xy=(bar.get_x() + bar.get_width() / 2, height),
+        xytext=(0, 5),
+        textcoords="offset points",
+        ha="center",
+        va="bottom"
+    )
+
+plt.tight_layout()
+st.pyplot(fig)
+plt.close(fig)
 
 st.caption(
     "Distribution of predicted churn risk among the model's "
