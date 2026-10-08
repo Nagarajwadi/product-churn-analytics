@@ -53,6 +53,7 @@ Interactive Streamlit Dashboard```
 - **SQL / SQLite** — analytical queries and feature dataset creation
 - **Scikit-learn** — Logistic Regression and Random Forest
 - **Streamlit** — interactive analytics dashboard
+- **Requests / REST API** — external API ingestion, pagination, validation, and data enrichment
 - **Matplotlib / Seaborn** — visualization
 - **Git / GitHub** — version control and project collaboration
 - **Jupyter Notebook** — exploratory analysis
