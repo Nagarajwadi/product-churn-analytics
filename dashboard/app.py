@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # ===================================
@@ -249,9 +250,17 @@ feature_importance = feature_importance.sort_values(
     ascending=True
 )
 
-st.bar_chart(
-    feature_importance.set_index("feature")
+fig, ax = plt.subplots(figsize=(10, 7))
+ax.barh(
+    feature_importance["feature"],
+    feature_importance["importance"]
 )
+ax.set_xlabel("Importance")
+ax.set_ylabel("Feature")
+plt.tight_layout()
+
+st.pyplot(fig)
+plt.close(fig)
 
 st.caption(
     "Feature importance shows how much each feature contributed "
