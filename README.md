@@ -271,3 +271,67 @@ Launch the Streamlit dashboard:
 ```bash
 streamlit run dashboard/app.py
 ```
+
+## API Integration
+
+The project also demonstrates an external REST API ingestion and enrichment workflow using the DummyJSON Users API.
+
+The API integration includes:
+
+- Reusable Python API client using `requests`
+- HTTP response validation and timeout handling
+- Paginated API ingestion
+- Explicit field selection to exclude unnecessary sensitive fields
+- JSON ingestion layer
+- Loading API data into SQLite
+- Joining API attributes with synthetic product-event data
+- API-enriched SQL analysis
+- Automated tests for API transformation logic
+
+### API Pipeline
+
+```text
+DummyJSON REST API
+        ↓
+Python API Client
+        ↓
+Pagination + Response Validation
+        ↓
+Field Transformation
+        ↓
+JSON Ingestion
+        ↓
+SQLite api_users
+        ↓
+user_api_enrichment
+        ↓
+API-enriched SQL Analysis
+```
+
+The API data is synthetic/demo data and is used to demonstrate API integration and data-enrichment techniques. It is not treated as real customer data and is not used as a causal explanation of churn.
+
+### API Integration Commands
+
+Fetch and validate the API data:
+
+```bash
+python -m etl.api_ingestion
+```
+
+Load the API data into SQLite:
+
+```bash
+python -m sql.load_api_users
+```
+
+Create the user-level enrichment table:
+
+```bash
+python -m sql.create_api_enrichment
+```
+
+Run the API-enriched analysis:
+
+```bash
+sqlite3 data/product_analytics.db < sql/api_enrichment_analysis.sql
+```
