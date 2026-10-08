@@ -13,6 +13,12 @@ This project analyzes user behavior for a fictional subscription-based productiv
 
 The project demonstrates how product event data can be transformed into analytical features, evaluated using SQL and Python, and used to support churn-risk analysis through an interactive dashboard.
 
+## 📊 Key Findings
+
+- **Churn prevalence:** 2.72% of eligible users in the held-out evaluation set were churners, creating a highly imbalanced classification problem.
+- **Model performance:** The Random Forest achieved **0.953 ROC-AUC** and **0.402 PR-AUC** on the held-out test set; 5-fold cross-validation produced **0.919 ± 0.013 ROC-AUC** and **0.244 ± 0.054 PR-AUC**.
+- **Risk targeting:** At a **50% risk-score threshold**, the dashboard targets **113 users**, identifies **16 of 18 churners (88.9% recall)**, and produces **97 false positives**. This illustrates the trade-off between recall and intervention volume.
+
 ## 🎯 Business Problem
 
 Subscription products need to understand which users may be at risk of leaving so product and customer-success teams can investigate user behavior and evaluate possible retention strategies.
