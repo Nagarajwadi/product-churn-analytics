@@ -317,7 +317,7 @@ with risk_col3:
 
 with risk_col4:
     st.metric(
-        "🎯 Probability ≥ 50%",
+        "🎯 Risk Score ≥ 50%",
         high_probability_users
     )
 
@@ -408,7 +408,7 @@ if not selected_prediction.empty:
 
     st.markdown("### 🎯 User Risk Profile")
 
-    profile_col1, profile_col2, profile_col3 = st.columns(3)
+    profile_col1, profile_col2 = st.columns(2)
 
     with profile_col1:
         st.metric(
@@ -421,13 +421,6 @@ if not selected_prediction.empty:
             "Risk Segment",
             prediction_row["risk_segment"]
         )
-
-    with profile_col3:
-        st.metric(
-            "Actual Churn",
-            "Yes" if prediction_row["actual_churn"] == 1 else "No"
-        )
-
 if not selected_user_data.empty:
 
     user_row = selected_user_data.iloc[0]
@@ -514,7 +507,6 @@ display_predictions["churn_probability"] = (
 display_predictions = display_predictions.rename(
     columns={
         "user_id": "User ID",
-        "actual_churn": "Actual Churn",
         "churn_probability": "Churn Risk Score (%)",
         "risk_segment": "Risk Segment"
     }
@@ -526,7 +518,6 @@ st.dataframe(
             "User ID",
             "Churn Risk Score (%)",
             "Risk Segment",
-            "Actual Churn"
         ]
     ],
     width="stretch"
