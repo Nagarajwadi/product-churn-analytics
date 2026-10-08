@@ -9,6 +9,9 @@ OUTPUT_PATH = Path("data/raw/api_users.json")
 
 def validate_users(users):
     """Validate the API records before saving."""
+    if not users:
+        raise ValueError("API returned no user records")
+
     required_fields = {
         "external_user_id",
         "age",
