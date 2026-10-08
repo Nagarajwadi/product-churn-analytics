@@ -340,7 +340,7 @@ st.subheader("📊 Risk Segment Distribution")
 risk_distribution = (
     user_predictions["risk_segment"]
     .value_counts()
-    .reindex(["High", "Medium", "Low"])
+    .reindex(["Low", "Medium", "High"])
     .fillna(0)
 )
 
