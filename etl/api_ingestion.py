@@ -34,6 +34,12 @@ def validate_users(users):
                 f"is missing fields: {missing_fields}"
             )
 
+    for user in users:
+        external_user_id = user["external_user_id"]
+
+        if external_user_id is None:
+            raise ValueError("external_user_id cannot be None")
+
     if len(users) != len({user["external_user_id"] for user in users}):
         raise ValueError("Duplicate external_user_id values found")
 

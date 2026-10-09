@@ -95,3 +95,24 @@ def test_validate_users_rejects_missing_external_user_id():
         assert "external_user_id" in str(error)
     else:
         raise AssertionError("Expected ValueError for missing external user ID")
+
+
+def test_validate_users_rejects_none_external_user_id():
+    users = [
+        {
+            "external_user_id": None,
+            "age": 29,
+            "gender": "female",
+            "role": "admin",
+            "department": "Engineering",
+            "job_title": "Engineer",
+            "country": "United States",
+        }
+    ]
+
+    try:
+        validate_users(users)
+    except ValueError as error:
+        assert "external_user_id" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for None external user ID")
