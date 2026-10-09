@@ -189,3 +189,45 @@ def test_fetch_users_rejects_boolean_limit():
             raise AssertionError("Expected ValueError for limit=True")
 
         mock_get.assert_not_called()
+
+
+def test_fetch_users_rejects_non_list_users():
+    response = Mock()
+    response.json.return_value = {"users": "invalid", "total": 1}
+    response.raise_for_status.return_value = None
+
+    with patch("src.api_client.requests.get", return_value=response):
+        try:
+            fetch_users()
+        except ValueError as error:
+            assert str(error) == "API response field 'users' must be a list"
+        else:
+            raise AssertionError("Expected ValueError for non-list users")
+
+
+def test_fetch_users_rejects_missing_total():
+    response = Mock()
+    response.json.return_value = {"users": []}
+    response.raise_for_status.return_value = None
+
+    with patch("src.api_client.requests.get", return_value=response):
+        try:
+            fetch_users()
+        except ValueError as error:
+            assert str(error) == "API response does not contain a valid 'total'"
+        else:
+            raise AssertionError("Expected ValueError for missing total")
+
+
+def test_fetch_users_rejects_invalid_total():
+    response = Mock()
+    response.json.return_value = {"users": [], "total": "invalid"}
+    response.raise_for_status.return_value = None
+
+    with patch("src.api_client.requests.get", return_value=response):
+        try:
+            fetch_users()
+        except ValueError as error:
+            assert str(error) == "API response does not contain a valid 'total'"
+        else:
+            raise AssertionError("Expected ValueError for invalid total")
