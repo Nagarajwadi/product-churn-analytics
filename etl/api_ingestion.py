@@ -33,9 +33,17 @@ def validate_users(users):
                 f"User {user.get('external_user_id')} "
                 f"is missing fields: {missing_fields}"
             )
-        if user["age"] is None:
+        age = user["age"]
+
+        if (
+            age is None
+            or isinstance(age, bool)
+            or not isinstance(age, (int, float))
+            or age < 0
+            ):
+
             raise ValueError(
-                f"User {user['external_user_id']} has an invalid age: None"
+                f"User {user['external_user_id']} has an invalid age: {age}"
             )
 
     for user in users:
