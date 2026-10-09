@@ -65,3 +65,33 @@ def test_validate_users_rejects_missing_fields():
     else:
         raise AssertionError("Expected ValueError for missing required fields")
 
+
+def test_validate_users_rejects_non_dictionary_record():
+    users = ["invalid user record"]
+
+    try:
+        validate_users(users)
+    except ValueError as error:
+        assert str(error) == "Each user record must be a dictionary"
+    else:
+        raise AssertionError("Expected ValueError for non-dictionary record")
+
+
+def test_validate_users_rejects_missing_external_user_id():
+    users = [
+        {
+            "age": 29,
+            "gender": "female",
+            "role": "admin",
+            "department": "Engineering",
+            "job_title": "Engineer",
+            "country": "United States",
+        }
+    ]
+
+    try:
+        validate_users(users)
+    except ValueError as error:
+        assert "external_user_id" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for missing external user ID")

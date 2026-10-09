@@ -23,6 +23,9 @@ def validate_users(users):
     }
 
     for user in users:
+        if not isinstance(user, dict):
+            raise ValueError("Each user record must be a dictionary")
+
         missing_fields = required_fields - user.keys()
 
         if missing_fields:
