@@ -246,3 +246,17 @@ def test_fetch_users_rejects_invalid_json():
             assert str(error) == "API response contains invalid JSON"
         else:
             raise AssertionError("Expected ValueError for invalid JSON")
+
+
+
+def test_fetch_users_propagates_timeout():
+    with patch(
+        "src.api_client.requests.get",
+        side_effect=requests.Timeout("Request timed out"),
+    ):
+        try:
+            fetch_users()
+        except requests.Timeout as error:
+            assert str(error) == "Request timed out"
+        else:
+            raise AssertionError("Expected requests.Timeout")
