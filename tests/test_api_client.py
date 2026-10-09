@@ -274,3 +274,18 @@ def test_fetch_users_propagates_connection_error():
             assert str(error) == "Connection failed"
         else:
             raise AssertionError("Expected requests.ConnectionError")
+
+
+
+def test_fetch_users_rejects_non_object_user_record():
+    response = Mock()
+    response.json.return_value = {"users": ["invalid"], "total": 1}
+    response.raise_for_status.return_value = None
+
+    with patch("src.api_client.requests.get", return_value=response):
+        try:
+            fetch_users()
+        except ValueError as error:
+            assert str(error) == "API response contains a non-object user record"
+        else:
+            raise AssertionError("Expected ValueError for malformed user record")

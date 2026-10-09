@@ -40,6 +40,9 @@ def fetch_users(limit=10, skip=0):
     if not isinstance(data["users"], list):
         raise ValueError("API response field 'users' must be a list")
 
+    if any(not isinstance(user, dict) for user in data["users"]):
+        raise ValueError("API response contains a non-object user record")
+
     total = data.get("total")
     if isinstance(total, bool) or not isinstance(total, int) or total < 0:
         raise ValueError("API response does not contain a valid 'total'")
