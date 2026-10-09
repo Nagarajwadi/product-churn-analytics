@@ -158,3 +158,24 @@ def test_validate_users_rejects_empty_external_user_id():
         assert "external_user_id" in str(error)
     else:
         raise AssertionError("Expected ValueError for empty external user ID")
+
+
+def test_validate_users_rejects_none_age():
+    users = [
+        {
+            "external_user_id": 1,
+            "age": None,
+            "gender": "female",
+            "role": "admin",
+            "department": "Engineering",
+            "job_title": "Engineer",
+            "country": "United States",
+        }
+    ]
+
+    try:
+        validate_users(users)
+    except ValueError as error:
+        assert "age" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for None age")
