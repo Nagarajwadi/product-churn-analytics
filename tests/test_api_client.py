@@ -152,3 +152,40 @@ def test_transform_users_handles_multiple_users():
     assert len(result) == 2
     assert result[0]["external_user_id"] == 1
     assert result[1]["external_user_id"] == 2
+
+
+
+def test_fetch_users_rejects_non_positive_limit():
+    with patch("src.api_client.requests.get") as mock_get:
+        try:
+            fetch_users(limit=0)
+        except ValueError as error:
+            assert str(error) == "limit must be a positive integer"
+        else:
+            raise AssertionError("Expected ValueError for limit=0")
+
+        mock_get.assert_not_called()
+
+
+def test_fetch_users_rejects_negative_skip():
+    with patch("src.api_client.requests.get") as mock_get:
+        try:
+            fetch_users(skip=-1)
+        except ValueError as error:
+            assert str(error) == "skip must be a non-negative integer"
+        else:
+            raise AssertionError("Expected ValueError for skip=-1")
+
+        mock_get.assert_not_called()
+
+
+def test_fetch_users_rejects_boolean_limit():
+    with patch("src.api_client.requests.get") as mock_get:
+        try:
+            fetch_users(limit=True)
+        except ValueError as error:
+            assert str(error) == "limit must be a positive integer"
+        else:
+            raise AssertionError("Expected ValueError for limit=True")
+
+        mock_get.assert_not_called()

@@ -6,6 +6,12 @@ BASE_URL = "https://dummyjson.com"
 
 def fetch_users(limit=10, skip=0):
     """Fetch one page of users from DummyJSON API."""
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit <= 0:
+        raise ValueError("limit must be a positive integer")
+
+    if isinstance(skip, bool) or not isinstance(skip, int) or skip < 0:
+        raise ValueError("skip must be a non-negative integer")
+
     url = f"{BASE_URL}/users"
 
     response = requests.get(
