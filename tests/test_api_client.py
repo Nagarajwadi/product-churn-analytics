@@ -231,3 +231,18 @@ def test_fetch_users_rejects_invalid_total():
             assert str(error) == "API response does not contain a valid 'total'"
         else:
             raise AssertionError("Expected ValueError for invalid total")
+
+def test_fetch_users_rejects_invalid_json():
+    response = Mock()
+    response.raise_for_status.return_value = None
+    response.json.side_effect = requests.exceptions.JSONDecodeError(
+        "Invalid JSON", "{invalid", 1
+    )
+
+    with patch("src.api_client.requests.get", return_value=response):
+        try:
+            fetch_users()
+        except ValueError as error:
+            assert str(error) == "API response contains invalid JSON"
+        else:
+            raise AssertionError("Expected ValueError for invalid JSON")

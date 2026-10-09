@@ -26,7 +26,10 @@ def fetch_users(limit=10, skip=0):
 
     response.raise_for_status()
 
-    data = response.json()
+    try:
+        data = response.json()
+    except requests.exceptions.JSONDecodeError as error:
+        raise ValueError("API response contains invalid JSON") from error
 
     if not isinstance(data, dict):
         raise ValueError("API response must be a JSON object")
