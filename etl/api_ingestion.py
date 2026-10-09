@@ -37,8 +37,8 @@ def validate_users(users):
     for user in users:
         external_user_id = user["external_user_id"]
 
-        if external_user_id is None:
-            raise ValueError("external_user_id cannot be None")
+        if external_user_id is None or isinstance(external_user_id, bool):
+            raise ValueError("external_user_id must not be None or a boolean")
 
     if len(users) != len({user["external_user_id"] for user in users}):
         raise ValueError("Duplicate external_user_id values found")
