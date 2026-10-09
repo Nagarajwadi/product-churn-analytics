@@ -52,6 +52,13 @@ def fetch_users(limit=10, skip=0):
 
 def fetch_all_users(page_size=50):
     """Fetch all users using API pagination."""
+    if (
+        isinstance(page_size, bool)
+        or not isinstance(page_size, int)
+        or page_size <= 0
+    ):
+        raise ValueError("page_size must be a positive integer")
+
     all_users = []
     skip = 0
 

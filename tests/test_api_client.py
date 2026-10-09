@@ -302,3 +302,27 @@ def test_fetch_users_rejects_non_object_user_record():
             assert str(error) == "API response contains a non-object user record"
         else:
             raise AssertionError("Expected ValueError for malformed user record")
+
+
+def test_fetch_all_users_rejects_non_positive_page_size():
+    with patch("src.api_client.fetch_users") as mock_fetch:
+        try:
+            fetch_all_users(page_size=0)
+        except ValueError as error:
+            assert str(error) == "page_size must be a positive integer"
+        else:
+            raise AssertionError("Expected ValueError for page_size=0")
+
+        mock_fetch.assert_not_called()
+
+
+def test_fetch_all_users_rejects_boolean_page_size():
+    with patch("src.api_client.fetch_users") as mock_fetch:
+        try:
+            fetch_all_users(page_size=True)
+        except ValueError as error:
+            assert str(error) == "page_size must be a positive integer"
+        else:
+            raise AssertionError("Expected ValueError for page_size=True")
+
+        mock_fetch.assert_not_called()
