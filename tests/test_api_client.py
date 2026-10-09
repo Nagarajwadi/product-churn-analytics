@@ -260,3 +260,17 @@ def test_fetch_users_propagates_timeout():
             assert str(error) == "Request timed out"
         else:
             raise AssertionError("Expected requests.Timeout")
+
+
+
+def test_fetch_users_propagates_connection_error():
+    with patch(
+        "src.api_client.requests.get",
+        side_effect=requests.ConnectionError("Connection failed"),
+    ):
+        try:
+            fetch_users()
+        except requests.ConnectionError as error:
+            assert str(error) == "Connection failed"
+        else:
+            raise AssertionError("Expected requests.ConnectionError")
