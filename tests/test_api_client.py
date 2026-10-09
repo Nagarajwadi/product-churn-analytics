@@ -36,6 +36,19 @@ def test_fetch_all_users_stops_on_empty_page():
     assert result == [{"id": 1}]
     assert mock_fetch.call_count == 2
 
+def test_fetch_all_users_rejects_page_larger_than_page_size():
+    pages = [
+        {"users": [{"id": 1}, {"id": 2}, {"id": 3}], "total": 3},
+    ]
+
+    with patch("src.api_client.fetch_users", side_effect=pages):
+        try:
+            fetch_all_users(page_size=2)
+        except ValueError as error:
+            assert str(error) == "API returned more users than the requested page size"
+        else:
+            raise AssertionError("Expected ValueError for oversized page")
+
 def test_fetch_users_sends_pagination_parameters():
     response = Mock()
     response.json.return_value = {"users": [{"id": 1}], "total": 1}

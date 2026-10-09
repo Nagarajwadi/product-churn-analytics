@@ -59,6 +59,11 @@ def fetch_all_users(page_size=50):
         data = fetch_users(limit=page_size, skip=skip)
         users = data["users"]
 
+        if len(users) > page_size:
+            raise ValueError(
+                "API returned more users than the requested page size"
+            )
+
         all_users.extend(users)
 
         if len(all_users) >= data["total"] or not users:
