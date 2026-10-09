@@ -40,7 +40,8 @@ def validate_users(users):
             or isinstance(age, bool)
             or not isinstance(age, (int, float))
             or age < 0
-            ):
+            or age > 120
+        ):
 
             raise ValueError(
                 f"User {user['external_user_id']} has an invalid age: {age}"

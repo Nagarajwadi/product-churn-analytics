@@ -200,3 +200,23 @@ def test_validate_users_rejects_negative_age():
         assert "age" in str(error)
     else:
         raise AssertionError("Expected ValueError for negative age")
+
+def test_validate_users_rejects_implausibly_high_age():
+    users = [
+        {
+            "external_user_id": 1,
+            "age": 200,
+            "gender": "female",
+            "role": "admin",
+            "department": "Engineering",
+            "job_title": "Engineer",
+            "country": "United States",
+        }
+    ]
+
+    try:
+        validate_users(users)
+    except ValueError as error:
+        assert "age" in str(error)
+    else:
+        raise AssertionError("Expected ValueError for implausibly high age")
