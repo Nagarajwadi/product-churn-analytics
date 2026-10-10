@@ -430,10 +430,10 @@ confusion = pd.read_csv(CONFUSION_MATRIX_PATH, index_col="actual")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric("Random Forest ROC-AUC", "0.946")
+    st.metric("Random Forest ROC-AUC", "0.953")
 
 with col2:
-    st.metric("Random Forest PR-AUC", "0.383")
+    st.metric("Random Forest PR-AUC", "0.402")
 
 # Classification metrics for the churn class
 st.markdown("### Churn Detection Metrics")
