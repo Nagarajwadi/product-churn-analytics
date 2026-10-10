@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import precision_recall_curve, average_precision_score
 
 
 # ===================================
@@ -420,6 +421,90 @@ st.caption(
 )
 
 
+
+# ===================================
+# PRECISION-RECALL CURVE
+# ===================================
+
+st.markdown("### Precision–Recall Curve")
+
+PREDICTIONS_PATH = "data/processed/user_churn_predictions.csv"
+pr_data = pd.read_csv(PREDICTIONS_PATH)
+
+precision_values, recall_values, _ = precision_recall_curve(
+    pr_data["actual_churn"],
+    pr_data["churn_probability"]
+)
+
+pr_auc_value = average_precision_score(
+    pr_data["actual_churn"],
+    pr_data["churn_probability"]
+)
+
+fig, ax = plt.subplots(figsize=(8, 5))
+
+ax.plot(
+    recall_values,
+    precision_values,
+    label=f"Average precision = {pr_auc_value:.3f}"
+)
+
+baseline = pr_data["actual_churn"].mean()
+ax.axhline(
+    y=baseline,
+    linestyle="--",
+    label=f"Churn prevalence = {baseline:.1%}"
+)
+
+ax.set_xlabel("Recall")
+ax.set_ylabel("Precision")
+ax.set_title("Precision–Recall Curve")
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1.05)
+ax.legend()
+ax.grid(alpha=0.3)
+
+st.pyplot(fig)
+plt.close(fig)
+
+st.caption(
+    "Each point represents a probability threshold. "
+    "Higher recall catches more churners, while higher precision "
+    "reduces unnecessary retention outreach."
+)
+
+
+# ===================================
+# BUSINESS INTERPRETATION
+# ===================================
+
+st.markdown("### Business Interpretation & Recommended Actions")
+
+st.markdown(
+    """
+    **What the results mean**
+
+    - **High recall (88.9%):** The model identifies 16 of the 18 actual
+      churners in this test set.
+    - **Low precision (14.2%):** Of the 113 users flagged at the 0.50
+      threshold, 16 actually churned and 97 did not.
+    - **Imbalanced data:** Only 18 of the 662 test users churned, so
+      accuracy alone would not tell the full story.
+
+    **Recommended product actions**
+
+    1. Test low-cost, targeted retention messages for high-risk users.
+    2. Reserve expensive incentives for users who meet additional
+       business criteria.
+    3. Compare retention and conversion outcomes against a control
+       group before claiming the campaign reduced churn.
+    4. Monitor precision, recall, and campaign cost as more outcomes
+       become available.
+
+    **Important limitation:** These are retrospective test-set results.
+    They do not prove that contacting a flagged user will prevent churn.
+    """
+)
 
 
 # ===================================
