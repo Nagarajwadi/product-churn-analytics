@@ -222,6 +222,9 @@ with col2:
 
 st.subheader("🎯 Churn-Risk Prioritization")
 
+PREDICTIONS_PATH = "data/processed/user_churn_predictions.csv"
+predictions = pd.read_csv(PREDICTIONS_PATH)
+
 risk_counts = predictions["risk_segment"].value_counts()
 
 col1, col2, col3 = st.columns(3)
@@ -234,9 +237,6 @@ with col2:
 
 with col3:
     st.metric("Low-Risk Users", int(risk_counts.get("Low", 0)))
-
-PREDICTIONS_PATH = "data/processed/user_churn_predictions.csv"
-predictions = pd.read_csv(PREDICTIONS_PATH)
 
 risk_order = ["High", "Medium", "Low"]
 
@@ -366,25 +366,60 @@ else:
     )
 
 
+
 # ===================================
-# MODEL PERFORMANCE
+# MODEL PERFORMANCE AND EVALUATION
 # ===================================
 
 st.subheader("Model Performance")
 
+EVALUATION_PATH = "data/processed/model_evaluation.csv"
+CONFUSION_MATRIX_PATH = "data/processed/confusion_matrix.csv"
+
+evaluation = pd.read_csv(EVALUATION_PATH, index_col="class")
+confusion = pd.read_csv(CONFUSION_MATRIX_PATH, index_col="actual")
+
+# Probability-based metrics
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(
-        "Random Forest ROC-AUC",
-        "0.953"
-    )
+    st.metric("Random Forest ROC-AUC", "0.946")
 
 with col2:
-    st.metric(
-        "Random Forest PR-AUC",
-        "0.402"
-    )
+    st.metric("Random Forest PR-AUC", "0.383")
+
+# Classification metrics for the churn class
+st.markdown("### Churn Detection Metrics")
+
+churn_metrics = evaluation.loc["1"]
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Precision", f"{churn_metrics['precision']:.1%}")
+
+with col2:
+    st.metric("Recall", f"{churn_metrics['recall']:.1%}")
+
+with col3:
+    st.metric("F1-score", f"{churn_metrics['f1-score']:.3f}")
+
+st.caption(
+    "Metrics are calculated on the held-out test set. "
+    "Precision measures how many flagged users actually churned; "
+    "recall measures how many actual churners were identified."
+)
+
+# Confusion matrix
+st.markdown("### Confusion Matrix")
+
+st.dataframe(confusion, width="stretch")
+
+st.caption(
+    "Rows represent actual outcomes; columns represent predicted outcomes."
+)
+
+
 
 
 # ===================================

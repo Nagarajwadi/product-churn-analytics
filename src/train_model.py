@@ -405,3 +405,45 @@ user_predictions.to_csv(
 
 print("\nUser churn predictions saved to:")
 print("data/processed/user_churn_predictions.csv")
+
+
+# ===================================
+# SAVE RANDOM FOREST EVALUATION
+# ===================================
+
+from sklearn.metrics import classification_report
+
+evaluation_report = classification_report(
+    y_test,
+    rf_predictions,
+    output_dict=True,
+    zero_division=0
+)
+
+evaluation_df = pd.DataFrame(evaluation_report).transpose()
+
+evaluation_df.to_csv(
+    "data/processed/model_evaluation.csv",
+    index=True,
+    index_label="class"
+)
+
+cm = confusion_matrix(y_test, rf_predictions)
+
+confusion_df = pd.DataFrame(
+    cm,
+    index=["Actual No Churn", "Actual Churn"],
+    columns=["Predicted No Churn", "Predicted Churn"]
+)
+
+confusion_df.to_csv(
+    "data/processed/confusion_matrix.csv",
+    index=True,
+    index_label="actual"
+)
+
+print("\nEvaluation report saved to:")
+print("data/processed/model_evaluation.csv")
+
+print("\nConfusion matrix saved to:")
+print("data/processed/confusion_matrix.csv")
