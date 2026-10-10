@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -543,6 +544,151 @@ st.caption(
     "to the Random Forest's predictions. It does not indicate "
     "whether a feature increases or decreases churn."
 )
+
+
+
+# ===================================
+# SIMULATED A/B TEST ANALYSIS
+# ===================================
+
+st.markdown("---")
+st.subheader("🧪 A/B Test Analysis")
+
+st.warning(
+    "**Simulated demonstration only:** The dataset does not contain "
+    "a real experiment assignment or intervention. These groups were "
+    "randomly created from historical churn labels. The results do not "
+    "measure the causal effect of a retention campaign."
+)
+
+AB_TEST_SUMMARY_PATH = "data/processed/ab_test_group_summary.csv"
+AB_TEST_RESULTS_PATH = "data/processed/ab_test_results.csv"
+
+if (
+    os.path.exists(AB_TEST_SUMMARY_PATH)
+    and os.path.exists(AB_TEST_RESULTS_PATH)
+):
+    ab_summary = pd.read_csv(AB_TEST_SUMMARY_PATH)
+    ab_results = pd.read_csv(AB_TEST_RESULTS_PATH)
+
+    if (
+        not ab_summary.empty
+        and not ab_results.empty
+        and {"experiment_group", "users", "churners", "churn_rate_pct"}
+        .issubset(ab_summary.columns)
+    ):
+        ab_result = ab_results.iloc[0]
+
+        control_row = ab_summary[
+            ab_summary["experiment_group"] == "control"
+        ]
+        treatment_row = ab_summary[
+            ab_summary["experiment_group"] == "treatment"
+        ]
+
+        if not control_row.empty and not treatment_row.empty:
+            control_row = control_row.iloc[0]
+            treatment_row = treatment_row.iloc[0]
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric(
+                    "Control Churn Rate",
+                    f"{control_row['churn_rate_pct']:.2f}%",
+                    help=(
+                        f"{int(control_row['churners'])} churners out of "
+                        f"{int(control_row['users'])} users"
+                    ),
+                )
+
+            with col2:
+                st.metric(
+                    "Treatment Churn Rate",
+                    f"{treatment_row['churn_rate_pct']:.2f}%",
+                    delta=(
+                        f"{ab_result['absolute_difference_percentage_points']:+.3f} "
+                        "percentage points"
+                    ),
+                    delta_color="inverse",
+                    help=(
+                        f"{int(treatment_row['churners'])} churners out of "
+                        f"{int(treatment_row['users'])} users. "
+                        "Negative difference means lower observed churn."
+                    ),
+                )
+
+            st.markdown("#### Group Comparison")
+
+            chart_data = ab_summary.set_index(
+                "experiment_group"
+            )[["churn_rate_pct"]]
+
+            st.bar_chart(chart_data)
+
+            st.markdown("#### Statistical Test")
+
+            metric1, metric2, metric3 = st.columns(3)
+
+            with metric1:
+                st.metric(
+                    "P-value",
+                    f"{ab_result['p_value']:.4f}",
+                )
+
+            with metric2:
+                st.metric(
+                    "Relative Difference",
+                    f"{ab_result['relative_difference_pct']:+.2f}%",
+                )
+
+            with metric3:
+                st.metric(
+                    "Confidence Level",
+                    f"{ab_result['confidence_level']:.0%}",
+                )
+
+            st.write(
+                "95% confidence interval for the absolute churn-rate "
+                "difference (treatment minus control): "
+                f"**{ab_result['difference_ci_lower_percentage_points']:+.3f} "
+                "to "
+                f"{ab_result['difference_ci_upper_percentage_points']:+.3f} "
+                "percentage points**."
+            )
+
+            if ab_result["p_value"] < 0.05:
+                st.info(
+                    "The simulated groups differ at the 5% significance "
+                    "level. This is not evidence of a treatment effect."
+                )
+            else:
+                st.info(
+                    "The difference between the simulated groups is not "
+                    "statistically significant at the 5% level."
+                )
+
+            st.caption(
+                "To evaluate a real intervention, assign eligible users "
+                "randomly before the intervention, record their actual "
+                "group assignments, and measure outcomes over a defined "
+                "follow-up period."
+            )
+        else:
+            st.error(
+                "The A/B test summary must contain both control and "
+                "treatment groups. Run src/ab_test_analysis.py again."
+            )
+    else:
+        st.error(
+            "The A/B test output files are empty or have an unexpected "
+            "schema. Run src/ab_test_analysis.py again."
+        )
+else:
+    st.info(
+        "A/B test results are not available. Run "
+        "`python src/ab_test_analysis.py` to generate them."
+    )
 
 
 # ===================================
