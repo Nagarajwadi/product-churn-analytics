@@ -77,19 +77,52 @@ with col4:
 
 
 # ===================================
-# DATA PREVIEW
+# INTERACTIVE USER EXPLORER
 # ===================================
 
-st.subheader("Dataset Overview")
+st.subheader("Explore User Segments")
 
-st.write(
-    f"The dashboard contains **{total_users:,} users** "
-    f"and **{len(df.columns)} analytical features**."
-)
+col1, col2 = st.columns(2)
+
+with col1:
+    churn_filter = st.selectbox(
+        "Churn Status",
+        options=["All Users", "Non-Churned", "Churned"]
+    )
+
+with col2:
+    max_recency = st.slider(
+        "Maximum Days Since Last Activity",
+        min_value=0,
+        max_value=max(1, int(df["days_since_last_activity"].max())),
+        value=int(df["days_since_last_activity"].max())
+    )
+
+filtered_df = df.copy()
+
+if churn_filter == "Non-Churned":
+    filtered_df = filtered_df[filtered_df["churn"] == 0]
+elif churn_filter == "Churned":
+    filtered_df = filtered_df[filtered_df["churn"] == 1]
+
+filtered_df = filtered_df[
+    filtered_df["days_since_last_activity"] <= max_recency
+]
+
+st.write(f"**Users matching filters:** {len(filtered_df):,}")
 
 st.dataframe(
-    df.head(10),
+    filtered_df.head(100),
     width="stretch"
+)
+
+csv_data = filtered_df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="Download filtered users as CSV",
+    data=csv_data,
+    file_name="filtered_churn_users.csv",
+    mime="text/csv"
 )
 
 
@@ -137,6 +170,51 @@ st.dataframe(
     engagement_summary.round(2),
     width="stretch"
 )
+
+
+# ===================================
+# CHURN BEHAVIOR COMPARISON CHARTS
+# ===================================
+
+st.subheader("Churn Behavior Comparison")
+
+chart_data = (
+    df.groupby("churn")[
+        [
+            "active_days",
+            "total_sessions",
+            "days_since_last_activity",
+            "days_since_last_login",
+        ]
+    ]
+    .mean()
+    .rename(index={
+        0: "Non-Churned",
+        1: "Churned",
+    })
+    .rename(columns={
+        "active_days": "Active Days",
+        "total_sessions": "Total Sessions",
+        "days_since_last_activity": "Days Since Activity",
+        "days_since_last_login": "Days Since Login",
+    })
+)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("**Average Engagement**")
+    st.bar_chart(
+        chart_data[["Active Days", "Total Sessions"]]
+    )
+
+with col2:
+    st.markdown("**Average Inactivity**")
+    st.bar_chart(
+        chart_data[["Days Since Activity", "Days Since Login"]]
+    )
+
+
 
 
 # ===================================
