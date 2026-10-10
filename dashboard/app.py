@@ -216,6 +216,84 @@ with col2:
 
 
 
+# ===================================
+# CHURN-RISK PRIORITIZATION
+# ===================================
+
+st.subheader("🎯 Churn-Risk Prioritization")
+
+risk_counts = predictions["risk_segment"].value_counts()
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("High-Risk Users", int(risk_counts.get("High", 0)))
+
+with col2:
+    st.metric("Medium-Risk Users", int(risk_counts.get("Medium", 0)))
+
+with col3:
+    st.metric("Low-Risk Users", int(risk_counts.get("Low", 0)))
+
+PREDICTIONS_PATH = "data/processed/user_churn_predictions.csv"
+predictions = pd.read_csv(PREDICTIONS_PATH)
+
+risk_order = ["High", "Medium", "Low"]
+
+col1, col2 = st.columns(2)
+
+with col1:
+    selected_risk = st.multiselect(
+        "Risk Segment",
+        options=risk_order,
+        default=["High", "Medium", "Low"],
+    )
+
+with col2:
+    min_probability = st.slider(
+        "Minimum Predicted Churn Probability",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.0,
+        step=0.05,
+        format="%.2f",
+    )
+
+filtered_predictions = predictions[
+    predictions["risk_segment"].isin(selected_risk)
+    & (predictions["churn_probability"] >= min_probability)
+].copy()
+
+filtered_predictions = filtered_predictions.sort_values(
+    "churn_probability",
+    ascending=False,
+)
+
+filtered_predictions["churn_probability"] = (
+    filtered_predictions["churn_probability"].map(
+        lambda probability: f"{probability:.1%}"
+    )
+)
+
+st.write(f"**Users matching filters:** {len(filtered_predictions):,}")
+
+st.dataframe(
+    filtered_predictions[
+        ["user_id", "risk_segment", "churn_probability", "actual_churn"]
+    ],
+    width="stretch",
+    hide_index=True,
+)
+
+st.download_button(
+    "Download churn-risk table as CSV",
+    data=filtered_predictions.to_csv(index=False).encode("utf-8"),
+    file_name="churn_risk_prioritization.csv",
+    mime="text/csv",
+)
+
+
+
 
 # ===================================
 # ML CHURN RISK
