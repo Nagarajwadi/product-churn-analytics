@@ -41,6 +41,51 @@ st.markdown(
 )
 
 
+
+# ===================================
+# EXECUTIVE SUMMARY
+# ===================================
+
+st.markdown("---")
+st.header("📋 Executive Summary")
+
+st.markdown(
+    """
+    This project analyzes user behavior and predicts churn risk to help
+    product teams prioritize customer-retention efforts.
+
+    **Key findings**
+
+    - **Churn prediction:** The Random Forest model achieved a ROC-AUC
+      of 0.946 and average precision of 0.383 on the held-out test set.
+    - **Risk identification:** At the 0.50 classification threshold,
+      the model identified 16 of 18 actual churners, with 97 false
+      positives among 113 flagged users.
+    - **Campaign planning:** The ROI calculator estimates possible
+      campaign economics using adjustable cost, retention-uplift, and
+      contribution assumptions.
+    - **Experimentation:** The A/B test section demonstrates statistical
+      testing using simulated groups, not a real retention experiment.
+
+    **Recommended business priorities**
+
+    1. Review high-risk users and prioritize appropriate, low-cost
+       retention outreach.
+    2. Evaluate outreach cost and potential contribution before
+       committing to expensive incentives.
+    3. Run a properly randomized retention experiment and measure
+       actual retention, conversion, and incremental contribution.
+    4. Reassess the model as more churn outcomes and campaign results
+       become available.
+
+    **Important limitation:** Model performance and ROI scenarios do
+    not prove that a retention campaign will prevent churn. Validate
+    campaign impact with real experimental outcomes.
+    """
+)
+
+
+
 # ===================================
 # KEY METRICS
 # ===================================
