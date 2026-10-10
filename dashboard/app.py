@@ -691,6 +691,192 @@ else:
     )
 
 
+
+# ===================================
+# RETENTION CAMPAIGN ROI ANALYSIS
+# ===================================
+
+st.markdown("---")
+st.subheader("💰 Retention Campaign ROI Analysis")
+
+st.warning(
+    "Planning estimates only. Campaign response, retention uplift, "
+    "and contribution margin are assumptions—not measured outcomes. "
+    "Predicted churn risk does not prove that a user will respond."
+)
+
+ROI_PREDICTIONS_PATH = "data/processed/user_churn_predictions.csv"
+
+if os.path.exists(ROI_PREDICTIONS_PATH):
+    roi_predictions = pd.read_csv(ROI_PREDICTIONS_PATH)
+
+    required_roi_columns = {"user_id", "churn_probability", "risk_segment"}
+
+    if required_roi_columns.issubset(roi_predictions.columns):
+        roi_predictions = roi_predictions.drop_duplicates(
+            subset=["user_id"]
+        )
+
+        risk_options = ["High", "Medium", "Low", "All users"]
+
+        selected_risk = st.selectbox(
+            "Target audience",
+            risk_options,
+            index=0,
+            key="roi_target_audience",
+        )
+
+        if selected_risk == "All users":
+            eligible_users = roi_predictions.copy()
+        else:
+            eligible_users = roi_predictions[
+                roi_predictions["risk_segment"] == selected_risk
+            ].copy()
+
+        st.caption(
+            f"Eligible audience in the current prediction file: "
+            f"{len(eligible_users):,} users."
+        )
+
+        input_col1, input_col2, input_col3 = st.columns(3)
+
+        with input_col1:
+            campaign_cost_per_user = st.number_input(
+                "Campaign cost per contacted user (₹)",
+                min_value=0.0,
+                value=20.0,
+                step=5.0,
+                key="roi_cost_per_user",
+            )
+
+        with input_col2:
+            assumed_retention_uplift = st.number_input(
+                "Assumed incremental retention (%)",
+                min_value=0.0,
+                max_value=100.0,
+                value=5.0,
+                step=1.0,
+                key="roi_retention_uplift",
+                help=(
+                    "Hypothetical percentage-point increase in retention "
+                    "among contacted users, not a measured campaign result."
+                ),
+            )
+
+        with input_col3:
+            contribution_per_retained_user = st.number_input(
+                "Contribution per incremental retained user (₹)",
+                min_value=0.0,
+                value=500.0,
+                step=50.0,
+                key="roi_contribution",
+                help=(
+                    "Estimated contribution after variable costs, not "
+                    "gross revenue."
+                ),
+            )
+
+        audience_size = len(eligible_users)
+        campaign_cost = audience_size * campaign_cost_per_user
+
+        # This is an assumption-based scenario, not a churn-model
+        # prediction or an experimentally measured treatment effect.
+        expected_incremental_retained = (
+            audience_size * assumed_retention_uplift / 100
+        )
+
+        estimated_incremental_contribution = (
+            expected_incremental_retained
+            * contribution_per_retained_user
+        )
+
+        net_benefit = estimated_incremental_contribution - campaign_cost
+
+        roi_pct = (
+            net_benefit / campaign_cost * 100
+            if campaign_cost > 0
+            else None
+        )
+
+        break_even_uplift_pct = (
+            campaign_cost
+            / (audience_size * contribution_per_retained_user)
+            * 100
+            if audience_size > 0 and contribution_per_retained_user > 0
+            else None
+        )
+
+        st.markdown("#### Scenario results")
+
+        result_col1, result_col2, result_col3, result_col4 = st.columns(4)
+
+        result_col1.metric(
+            "Estimated campaign cost",
+            f"₹{campaign_cost:,.2f}",
+        )
+
+        result_col2.metric(
+            "Incremental retained users",
+            f"{expected_incremental_retained:,.1f}",
+        )
+
+        result_col3.metric(
+            "Estimated net benefit",
+            f"₹{net_benefit:,.2f}",
+        )
+
+        result_col4.metric(
+            "Estimated ROI",
+            f"{roi_pct:,.1f}%" if roi_pct is not None else "N/A",
+        )
+
+        if break_even_uplift_pct is not None:
+            st.write(
+                "Break-even incremental retention uplift: "
+                f"**{break_even_uplift_pct:.2f}%** under these assumptions."
+            )
+        else:
+            st.info(
+                "Break-even uplift cannot be calculated when the audience "
+                "or contribution per retained user is zero."
+            )
+
+        roi_chart = pd.DataFrame(
+            {
+                "Amount (₹)": [
+                    campaign_cost,
+                    estimated_incremental_contribution,
+                    net_benefit,
+                ]
+            },
+            index=[
+                "Campaign cost",
+                "Estimated contribution",
+                "Estimated net benefit",
+            ],
+        )
+
+        st.markdown("#### Estimated financial impact")
+        st.bar_chart(roi_chart)
+
+        st.caption(
+            "Scenario formula: net benefit = estimated incremental "
+            "contribution − campaign cost. ROI = net benefit ÷ campaign "
+            "cost × 100. Validate these assumptions with a properly "
+            "randomized experiment before treating them as business results."
+        )
+    else:
+        st.error(
+            "Prediction data is missing required columns for ROI analysis."
+        )
+else:
+    st.info(
+        "Prediction data is unavailable. Run the model training script "
+        "to generate data/processed/user_churn_predictions.csv."
+    )
+
+
+
 # ===================================
 # LOAD USER CHURN PREDICTIONS
 # ===================================
