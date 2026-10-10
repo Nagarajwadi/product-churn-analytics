@@ -57,7 +57,7 @@ st.markdown(
     **Key findings**
 
     - **Churn prediction:** The Random Forest model achieved a ROC-AUC
-      of 0.946 and average precision of 0.383 on the held-out test set.
+      of 0.953 and average precision of 0.402 on the held-out test set.
     - **Risk identification:** At the 0.50 classification threshold,
       the model identified 16 of 18 actual churners, with 97 false
       positives among 113 flagged users.
