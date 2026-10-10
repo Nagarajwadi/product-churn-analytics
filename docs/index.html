@@ -235,8 +235,12 @@
     }
 
     .architecture {
-      background: #172033;
-      color: white;
+      background: #111c35;
+      color: #f8fafc;
+    }
+
+    .architecture .section-title {
+      color: #f8fafc;
     }
 
     .architecture .section-intro {
@@ -245,13 +249,32 @@
 
     .flow {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 12px;
       margin-top: 30px;
-      overflow-x: auto;
       padding-bottom: 10px;
+    }
+
+    .architecture .arrow {
+      color: #5eead4;
+    }
+
+    @media (max-width: 600px) {
+      .flow {
+        justify-content: flex-start;
+        gap: 10px;
+      }
+
+      .flow-item {
+        min-width: 0;
+        flex: 1 1 125px;
+      }
+
+      .flow .arrow {
+        display: none;
+      }
     }
 
     .flow-item {
