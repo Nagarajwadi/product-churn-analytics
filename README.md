@@ -346,3 +346,13 @@ Run the API-enriched analysis:
 ```bash
 sqlite3 data/product_analytics.db < sql/api_enrichment_analysis.sql
 ```
+
+## Testing
+
+Run the automated test suite from the repository root:
+
+```bash
+pytest -q
+```
+
+The test suite previously passed with 39 tests. Run the command above to verify the current state of the project.
