@@ -164,11 +164,11 @@ Different risk-score thresholds produce different trade-offs between identifying
 
 | Threshold | Users Targeted | Churners Identified | False Positives | Precision | Recall |
 |---:|---:|---:|---:|---:|---:|
-| 0.20 | 137 | 17 | 120 | 0.124 | 0.944 |
+| 0.20 | 133 | 17 | 116 | 0.128 | 0.944 |
 | 0.30 | 129 | 17 | 112 | 0.132 | 0.944 |
 | 0.40 | 119 | 16 | 103 | 0.134 | 0.889 |
 | 0.50 | 113 | 16 | 97 | 0.142 | 0.889 |
-| 0.60 | 99 | 16 | 83 | 0.162 | 0.889 |
+| 0.60 | 96 | 16 | 80 | 0.167 | 0.889 |
 
 A lower threshold identifies more potential churners but also increases the number of false positives. A higher threshold reduces the number of users targeted while identifying a smaller set of high-risk cases.
 
