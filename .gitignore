@@ -219,3 +219,5 @@ __marimo__/
 
 # API integration generated data
 data/raw/api_users.json
+
+.env
