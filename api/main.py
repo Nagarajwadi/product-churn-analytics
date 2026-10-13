@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from supabase import Client, create_client
 
 load_dotenv()
@@ -11,6 +12,17 @@ app = FastAPI(
     title="Product Churn Analytics API",
     description="Read-only API for approved aggregate churn analytics.",
     version="0.2.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://productanalytics.me",
+        "https://www.productanalytics.me",
+    ],
+    allow_credentials=False,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 API_DATA_MODE = os.getenv("API_DATA_MODE", "mock").strip().lower()

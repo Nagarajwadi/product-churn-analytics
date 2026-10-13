@@ -1,3 +1,8 @@
+import os
+
+# Keep tests independent of the local .env and cloud database.
+os.environ["API_DATA_MODE"] = "mock"
+
 from fastapi.testclient import TestClient
 
 from api.main import app
