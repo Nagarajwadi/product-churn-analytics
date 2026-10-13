@@ -20,6 +20,7 @@ app.add_middleware(
         "https://productanalytics.me",
         "https://www.productanalytics.me",
     ],
+    allow_origin_regex=r"https://[a-z0-9-]+-8000\.app\.github\.dev",
     allow_credentials=False,
     allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],
