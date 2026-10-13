@@ -95,6 +95,50 @@ def health_check():
     }
 
 
+@app.get("/api/v1/product-analytics", tags=["Product Analytics"])
+def get_product_analytics():
+    if API_DATA_MODE == "mock":
+        return {
+            "source": "mock_demo_data",
+            "metrics": None,
+            "last_updated": None,
+            "note": "No Product Analytics snapshot has been published.",
+        }
+
+    if API_DATA_MODE != "supabase":
+        raise HTTPException(status_code=500, detail="Unsupported API_DATA_MODE.")
+
+    row = latest_row("product_analytics_metrics")
+    if row is None:
+        return {
+            "source": "supabase",
+            "metrics": None,
+            "last_updated": None,
+            "note": "No Product Analytics snapshot has been published yet.",
+        }
+
+    fields = (
+        "total_customers", "total_events", "total_sessions",
+        "total_logins", "total_product_views", "avg_active_days",
+        "avg_search_rate", "avg_cart_rate", "avg_purchase_rate",
+        "avg_days_since_last_activity", "avg_days_since_last_login",
+        "avg_days_since_last_product_view", "avg_events_per_active_day",
+        "avg_sessions_per_active_day",
+    )
+    metrics = {
+        field: (
+            float(row[field]) if field.startswith("avg_")
+            else int(row[field])
+        )
+        for field in fields
+    }
+    return {
+        "source": "supabase",
+        "metrics": metrics,
+        "last_updated": row["published_at"],
+    }
+
+
 @app.get("/api/v1/summary", tags=["Analytics"])
 def get_summary():
     if API_DATA_MODE == "mock":

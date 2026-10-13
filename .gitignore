@@ -225,3 +225,7 @@ data/raw/api_users.json
 # Locally generated segment artifacts
 /api/generated_segments.sql
 /api/generated_segments_preview.json
+
+# Generated Product Analytics snapshot artifacts
+/api/generated_product_analytics.sql
+/api/generated_product_analytics_preview.json

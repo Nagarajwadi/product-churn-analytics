@@ -863,28 +863,38 @@
       conversion, and recency features.
     </p>
 
+    <div class="buttons" style="margin: 16px 0;">
+      <button class="button primary" id="product-analytics-refresh" type="button">
+        Refresh metrics
+      </button>
+      <span id="product-analytics-status" class="muted-note" role="status" aria-live="polite">
+        Loading published metrics…
+      </span>
+    </div>
+    <p class="muted-note" id="product-analytics-updated">Last updated: waiting for data</p>
+
     <div class="metrics">
       <div class="metric-panel">
         <h3>Engagement Features</h3>
 
         <div class="metric-row">
           <span>Total events</span>
-          <span class="metric-value">Count</span>
+          <span class="metric-value" id="pa-total-events">—</span>
         </div>
 
         <div class="metric-row">
           <span>Total sessions</span>
-          <span class="metric-value">Count</span>
+          <span class="metric-value" id="pa-total-sessions">—</span>
         </div>
 
         <div class="metric-row">
           <span>Active days</span>
-          <span class="metric-value">Count</span>
+          <span class="metric-value" id="pa-active-days">—</span>
         </div>
 
         <div class="metric-row">
           <span>Logins / product views</span>
-          <span class="metric-value">Count</span>
+          <span class="metric-value" id="pa-logins-views">—</span>
         </div>
 
       </div>
@@ -894,17 +904,17 @@
 
         <div class="metric-row">
           <span>Search rate</span>
-          <span class="metric-value">Rate</span>
+          <span class="metric-value" id="pa-search-rate">—</span>
         </div>
 
         <div class="metric-row">
           <span>Cart rate</span>
-          <span class="metric-value">Rate</span>
+          <span class="metric-value" id="pa-cart-rate">—</span>
         </div>
 
         <div class="metric-row">
           <span>Purchase rate</span>
-          <span class="metric-value">Rate</span>
+          <span class="metric-value" id="pa-purchase-rate">—</span>
         </div>
       </div>
 
@@ -913,27 +923,27 @@
 
         <div class="metric-row">
           <span>Days since last activity</span>
-          <span class="metric-value">Days</span>
+          <span class="metric-value" id="pa-last-activity">—</span>
         </div>
 
         <div class="metric-row">
           <span>Days since last login</span>
-          <span class="metric-value">Days</span>
+          <span class="metric-value" id="pa-last-login">—</span>
         </div>
 
         <div class="metric-row">
           <span>Days since last product view</span>
-          <span class="metric-value">Days</span>
+          <span class="metric-value" id="pa-last-view">—</span>
         </div>
 
         <div class="metric-row">
           <span>Events per active day</span>
-          <span class="metric-value">Rate</span>
+          <span class="metric-value" id="pa-events-per-day">—</span>
         </div>
 
         <div class="metric-row">
           <span>Sessions per active day</span>
-          <span class="metric-value">Rate</span>
+          <span class="metric-value" id="pa-sessions-per-day">—</span>
         </div>
       </div>
     </div>
@@ -1131,6 +1141,7 @@
           <select id="api-endpoint">
             <option value="/health">GET /health — service status</option>
             <option value="/api/v1/summary">GET /api/v1/summary — churn summary</option>
+            <option value="/api/v1/product-analytics">GET /api/v1/product-analytics — product analytics</option>
             <option value="/api/v1/segments">GET /api/v1/segments — customer segments</option>
             <option value="/api/v1/model-performance">GET /api/v1/model-performance — model metrics</option>
           </select>
@@ -1334,6 +1345,7 @@
     const allowed = [
       "/health",
       "/api/v1/summary",
+      "/api/v1/product-analytics",
       "/api/v1/segments",
       "/api/v1/model-performance"
     ];
@@ -1541,6 +1553,76 @@
     </p>
   </div>
 </footer>
+
+
+<script>
+(() => {
+  const API_BASE = "https://product-churn-analytics-api.onrender.com";
+  const button = document.getElementById("product-analytics-refresh");
+  const status = document.getElementById("product-analytics-status");
+  const updated = document.getElementById("product-analytics-updated");
+
+  if (!button || !status || !updated) return;
+
+  const number = value =>
+    Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+  const rate = value =>
+    `${(Number(value) * 100).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}%`;
+
+  const set = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  async function refreshProductAnalytics() {
+    button.disabled = true;
+    status.textContent = "Loading published metrics…";
+
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/product-analytics`, {
+        headers: { Accept: "application/json" },
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error(`API returned HTTP ${response.status}`);
+
+      const data = await response.json();
+      const m = data.metrics;
+      if (!m) throw new Error(data.note || "No Product Analytics snapshot is published.");
+
+      set("pa-total-events", number(m.total_events));
+      set("pa-total-sessions", number(m.total_sessions));
+      set("pa-active-days", number(m.avg_active_days) + " avg");
+      set("pa-logins-views", `${number(m.total_logins)} / ${number(m.total_product_views)}`);
+      set("pa-search-rate", rate(m.avg_search_rate));
+      set("pa-cart-rate", rate(m.avg_cart_rate));
+      set("pa-purchase-rate", rate(m.avg_purchase_rate));
+      set("pa-last-activity", number(m.avg_days_since_last_activity) + " avg days");
+      set("pa-last-login", number(m.avg_days_since_last_login) + " avg days");
+      set("pa-last-view", number(m.avg_days_since_last_product_view) + " avg days");
+      set("pa-events-per-day", number(m.avg_events_per_active_day));
+      set("pa-sessions-per-day", number(m.avg_sessions_per_active_day));
+
+      const date = data.last_updated ? new Date(data.last_updated) : null;
+      updated.textContent = date && !Number.isNaN(date.getTime())
+        ? `Last updated: ${date.toLocaleString()}`
+        : "Last updated: timestamp unavailable";
+      status.textContent = `Loaded aggregate metrics from ${data.source || "the API"}.`;
+    } catch (error) {
+      status.textContent = `Unable to load Product Analytics: ${error.message}`;
+      console.error("Product Analytics request failed:", error);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  button.addEventListener("click", refreshProductAnalytics);
+  refreshProductAnalytics();
+})();
+</script>
 
 </body>
 </html>

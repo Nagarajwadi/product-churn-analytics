@@ -45,3 +45,13 @@ def test_model_performance():
     assert data["model"] == "Random Forest"
     assert data["roc_auc"] == 0.953
     assert data["average_precision"] == 0.402
+
+
+def test_product_analytics_not_published_in_mock_mode():
+    response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["source"] == "mock_demo_data"
+    assert data["metrics"] is None
+    assert data["last_updated"] is None
