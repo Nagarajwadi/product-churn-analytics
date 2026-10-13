@@ -221,3 +221,7 @@ __marimo__/
 data/raw/api_users.json
 
 .env
+
+# Locally generated segment artifacts
+/api/generated_segments.sql
+/api/generated_segments_preview.json
