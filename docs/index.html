@@ -779,6 +779,155 @@
   </div>
 </section>
 
+
+<section id="live-cloud-analytics">
+  <div class="container">
+    <h2 class="section-title">Live Cloud Analytics</h2>
+    <p class="section-intro">
+      Live aggregate metrics served by FastAPI and Supabase.
+      These values update from the published cloud data.
+    </p>
+
+    <div class="metrics">
+      <div class="metric-panel">
+        <h3>Customer Churn</h3>
+        <div class="metric-row">
+          <span>Total customers</span>
+          <span class="metric-value" id="live-total-customers">Loading…</span>
+        </div>
+        <div class="metric-row">
+          <span>Churned customers</span>
+          <span class="metric-value" id="live-churned-customers">Loading…</span>
+        </div>
+        <div class="metric-row">
+          <span>Churn rate</span>
+          <span class="metric-value" id="live-churn-rate">Loading…</span>
+        </div>
+      </div>
+
+      <div class="metric-panel">
+        <h3>Model Performance</h3>
+        <div class="metric-row">
+          <span>Model</span>
+          <span class="metric-value" id="live-model-name">Loading…</span>
+        </div>
+        <div class="metric-row">
+          <span>ROC AUC</span>
+          <span class="metric-value" id="live-roc-auc">Loading…</span>
+        </div>
+        <div class="metric-row">
+          <span>Average precision</span>
+          <span class="metric-value" id="live-average-precision">Loading…</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-intro" id="live-data-status" role="status" aria-live="polite">
+      Connecting to the live analytics API…
+    </p>
+    <p class="section-intro">
+      <span id="live-last-updated">Last updated: waiting for data</span>
+    </p>
+
+    <div class="buttons">
+      <a class="button" href="https://product-churn-analytics-api.onrender.com/docs"
+         target="_blank" rel="noopener">Explore API documentation</a>
+      <a class="button" href="https://product-churn-analytics-api.onrender.com/api/v1/summary"
+         target="_blank" rel="noopener">Churn summary JSON</a>
+      <a class="button" href="https://product-churn-analytics-api.onrender.com/api/v1/model-performance"
+         target="_blank" rel="noopener">Model metrics JSON</a>
+      <a class="button" href="https://product-churn-analytics-api.onrender.com/api/v1/segments"
+         target="_blank" rel="noopener">Segments JSON</a>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const API_BASE = "https://product-churn-analytics-api.onrender.com";
+
+  const setText = (id, value) => {
+    document.getElementById(id).textContent = value;
+  };
+
+  const formatNumber = value =>
+    Number.isFinite(Number(value)) ? Number(value).toLocaleString() : "—";
+
+  const formatScore = value =>
+    Number.isFinite(Number(value)) ? Number(value).toFixed(3) : "—";
+
+  async function fetchJSON(path) {
+    const response = await fetch(`${API_BASE}${path}`);
+    if (!response.ok) {
+      throw new Error(`Request failed (${response.status}) for ${path}`);
+    }
+    return response.json();
+  }
+
+  async function loadLiveMetrics() {
+    const status = document.getElementById("live-data-status");
+    status.textContent = "Connecting to the live analytics API…";
+
+    const results = await Promise.allSettled([
+      fetchJSON("/api/v1/summary"),
+      fetchJSON("/api/v1/model-performance")
+    ]);
+
+    let loaded = 0;
+    const summaryResult = results[0];
+    const modelResult = results[1];
+
+    if (summaryResult.status === "fulfilled") {
+      const summary = summaryResult.value;
+      setText("live-total-customers", formatNumber(summary.total_customers));
+      setText("live-churned-customers", formatNumber(summary.churned_customers));
+      setText(
+        "live-churn-rate",
+        Number.isFinite(Number(summary.churn_rate))
+          ? `${(Number(summary.churn_rate) * 100).toFixed(2)}%`
+          : "—"
+      );
+      setText(
+        "live-last-updated",
+        summary.last_updated
+          ? `Metrics published: ${new Date(summary.last_updated).toLocaleString()}`
+          : "Metrics have not been published yet."
+      );
+      loaded++;
+    } else {
+      setText("live-total-customers", "Unavailable");
+      setText("live-churned-customers", "Unavailable");
+      setText("live-churn-rate", "Unavailable");
+      console.error("Could not load churn summary:", summaryResult.reason);
+    }
+
+    if (modelResult.status === "fulfilled") {
+      const model = modelResult.value;
+      setText("live-model-name", model.model || "Not published");
+      setText("live-roc-auc", formatScore(model.roc_auc));
+      setText("live-average-precision", formatScore(model.average_precision));
+      loaded++;
+    } else {
+      setText("live-model-name", "Unavailable");
+      setText("live-roc-auc", "Unavailable");
+      setText("live-average-precision", "Unavailable");
+      console.error("Could not load model metrics:", modelResult.reason);
+    }
+
+    if (loaded === 2) {
+      status.textContent = "Live metrics loaded successfully from the cloud API.";
+    } else if (loaded === 1) {
+      status.textContent = "Some live metrics loaded; another API endpoint is unavailable.";
+    } else {
+      status.textContent =
+        "Live metrics are temporarily unavailable. The free API may be waking up; please refresh shortly.";
+    }
+  }
+
+  loadLiveMetrics();
+})();
+</script>
+
 <section id="ml">
   <div class="container">
     <h2 class="section-title">Machine Learning Results</h2>
