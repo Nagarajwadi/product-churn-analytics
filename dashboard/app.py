@@ -3,6 +3,10 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, average_precision_score
+from src.retention_roi import (
+    calculate_retention_roi,
+    compare_retention_scenarios,
+)
 
 
 # ===================================
@@ -822,34 +826,26 @@ if os.path.exists(ROI_PREDICTIONS_PATH):
             )
 
         audience_size = len(eligible_users)
-        campaign_cost = audience_size * campaign_cost_per_user
 
-        # This is an assumption-based scenario, not a churn-model
-        # prediction or an experimentally measured treatment effect.
-        expected_incremental_retained = (
-            audience_size * assumed_retention_uplift / 100
+        roi_result = calculate_retention_roi(
+            audience_size=audience_size,
+            campaign_cost_per_user=campaign_cost_per_user,
+            retention_uplift_pct=assumed_retention_uplift,
+            contribution_per_retained_user=contribution_per_retained_user,
         )
 
-        estimated_incremental_contribution = (
-            expected_incremental_retained
-            * contribution_per_retained_user
-        )
+        campaign_cost = roi_result["campaign_cost"]
+        expected_incremental_retained = roi_result[
+            "incremental_retained_users"
+        ]
+        estimated_incremental_contribution = roi_result[
+            "incremental_contribution"
+        ]
+        net_benefit = roi_result["net_benefit"]
+        roi_pct = roi_result["roi_pct"]
+        break_even_uplift_pct = roi_result["break_even_uplift_pct"]
 
-        net_benefit = estimated_incremental_contribution - campaign_cost
 
-        roi_pct = (
-            net_benefit / campaign_cost * 100
-            if campaign_cost > 0
-            else None
-        )
-
-        break_even_uplift_pct = (
-            campaign_cost
-            / (audience_size * contribution_per_retained_user)
-            * 100
-            if audience_size > 0 and contribution_per_retained_user > 0
-            else None
-        )
 
         st.markdown("#### Scenario results")
 
@@ -909,6 +905,45 @@ if os.path.exists(ROI_PREDICTIONS_PATH):
             "contribution − campaign cost. ROI = net benefit ÷ campaign "
             "cost × 100. Validate these assumptions with a properly "
             "randomized experiment before treating them as business results."
+        )
+
+        st.markdown("#### Retention-uplift sensitivity analysis")
+        st.caption(
+            "Compare hypothetical uplift assumptions while keeping the "
+            "selected audience, campaign cost, and contribution constant."
+        )
+
+        sensitivity = compare_retention_scenarios(
+            audience_size=audience_size,
+            campaign_cost_per_user=campaign_cost_per_user,
+            retention_uplifts_pct=[2.0, 5.0, 8.0],
+            contribution_per_retained_user=contribution_per_retained_user,
+        )
+
+        sensitivity_table = pd.DataFrame(sensitivity)[
+            [
+                "retention_uplift_pct",
+                "incremental_retained_users",
+                "campaign_cost",
+                "incremental_contribution",
+                "net_benefit",
+                "roi_pct",
+            ]
+        ].rename(
+            columns={
+                "retention_uplift_pct": "Assumed uplift (%)",
+                "incremental_retained_users": "Estimated retained users",
+                "campaign_cost": "Campaign cost (₹)",
+                "incremental_contribution": "Estimated contribution (₹)",
+                "net_benefit": "Estimated net benefit (₹)",
+                "roi_pct": "Estimated ROI (%)",
+            }
+        )
+
+        st.dataframe(
+            sensitivity_table.round(2),
+            use_container_width=True,
+            hide_index=True,
         )
     else:
         st.error(
