@@ -1029,6 +1029,62 @@ with risk_col4:
     )
 
 
+
+
+# ===================================
+# EXECUTIVE BUSINESS INSIGHTS
+# ===================================
+
+st.markdown("---")
+st.header("💡 Executive Business Insights")
+
+risk_segment_counts = {
+    "High Risk": int(high_risk_users),
+    "Medium Risk": int(medium_risk_users),
+    "Low Risk": int(low_risk_users),
+}
+
+largest_segment = max(
+    risk_segment_counts,
+    key=risk_segment_counts.get,
+)
+
+total_predicted_users = sum(risk_segment_counts.values())
+
+insight_col1, insight_col2 = st.columns(2)
+
+with insight_col1:
+    st.markdown("#### 🎯 Risk prioritization")
+    st.write(
+        f"The largest risk segment is **{largest_segment}**, "
+        f"with **{risk_segment_counts[largest_segment]:,} users** "
+        f"out of {total_predicted_users:,} users."
+    )
+    st.write(
+        "Prioritize reviewing high-risk users for appropriate, "
+        "low-cost outreach. A high predicted risk does not guarantee "
+        "that an individual user will churn."
+    )
+
+with insight_col2:
+    st.markdown("#### 💰 Campaign decision")
+    st.write(
+        "Use the retention-uplift sensitivity table above to compare "
+        "hypothetical campaign outcomes at 2%, 5%, and 8% uplift."
+    )
+    st.write(
+        "Compare estimated net benefit and ROI before selecting a "
+        "scenario for further investigation. These estimates are not "
+        "measured campaign results."
+    )
+
+st.info(
+    "Recommended next action: validate the campaign assumptions with "
+    "a randomized experiment and measure incremental retention and "
+    "contribution before claiming business impact."
+)
+
+
 # ===================================
 # RISK SEGMENT DISTRIBUTION
 # ===================================
