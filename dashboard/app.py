@@ -1,12 +1,22 @@
+
 import os
+import sys
+from pathlib import Path
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, average_precision_score
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.retention_roi import (
     calculate_retention_roi,
     compare_retention_scenarios,
 )
+
 
 
 # ===================================
@@ -942,7 +952,7 @@ if os.path.exists(ROI_PREDICTIONS_PATH):
 
         st.dataframe(
             sensitivity_table.round(2),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
     else:
