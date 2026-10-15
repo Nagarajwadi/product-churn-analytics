@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime, timezone
 
@@ -125,17 +126,63 @@ def get_product_analytics():
         "avg_days_since_last_product_view", "avg_events_per_active_day",
         "avg_sessions_per_active_day",
     )
-    metrics = {
-        field: (
-            float(row[field]) if field.startswith("avg_")
-            else int(row[field])
-        )
-        for field in fields
-    }
+    try:
+        if not isinstance(row, dict):
+            raise ValueError("Snapshot must be an object.")
+
+        metrics = {}
+
+        for field in fields:
+            value = row[field]
+
+            if field.startswith("avg_"):
+                number = float(value)
+
+                if not math.isfinite(number) or number < 0:
+                    raise ValueError("Average metric must be finite and non-negative.")
+
+                if field in {
+                    "avg_search_rate",
+                    "avg_cart_rate",
+                    "avg_purchase_rate",
+                } and number > 1:
+                    raise ValueError("Rate must be between 0 and 1.")
+
+                metrics[field] = number
+            else:
+                if isinstance(value, bool):
+                    raise ValueError("Count must be an integer.")
+
+                if isinstance(value, int):
+                    number = value
+                elif isinstance(value, str) and value.strip().isdecimal():
+                    number = int(value.strip())
+                else:
+                    raise ValueError("Count must be an integer.")
+
+                if number < 0:
+                    raise ValueError("Count must be non-negative.")
+
+                metrics[field] = number
+
+        published_at = row["published_at"]
+
+        if not isinstance(published_at, str) or not published_at.strip():
+            raise ValueError("Snapshot timestamp is missing.")
+
+        datetime.fromisoformat(published_at.strip().replace("Z", "+00:00"))
+
+    except (KeyError, TypeError, ValueError, OverflowError):
+        raise HTTPException(
+            status_code=500,
+            detail="Published Product Analytics snapshot is invalid.",
+        ) from None
+
+
     return {
         "source": "supabase",
         "metrics": metrics,
-        "last_updated": row["published_at"],
+        "last_updated": published_at,
     }
 
 

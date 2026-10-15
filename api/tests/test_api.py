@@ -1,7 +1,18 @@
+
 import os
 from unittest.mock import patch
 
+# Set this before importing api.main.
+# Keep tests independent of .env and the cloud database.
+os.environ["API_DATA_MODE"] = "mock"
+
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
+
+from api.main import app
+
+client = TestClient(app)
+
 
 # Keep tests independent of the local .env and cloud database.
 os.environ["API_DATA_MODE"] = "mock"
@@ -115,3 +126,47 @@ def test_unsupported_data_mode_returns_500():
 
     assert response.status_code == 500
     assert response.json()["detail"] == "Unsupported API_DATA_MODE."
+
+
+
+def test_product_analytics_missing_metric_returns_controlled_error():
+    incomplete_row = {
+        "published_at": "2026-10-15T00:00:00+00:00",
+        "total_customers": 100,
+    }
+
+    with (
+        patch("api.main.API_DATA_MODE", "supabase"),
+        patch("api.main.latest_row", return_value=incomplete_row),
+    ):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 500
+
+
+def test_product_analytics_malformed_metric_returns_controlled_error():
+    malformed_row = {
+        "published_at": "2026-10-15T00:00:00+00:00",
+        "total_customers": "not-a-number",
+        "total_events": 100,
+        "total_sessions": 50,
+        "total_logins": 40,
+        "total_product_views": 30,
+        "avg_active_days": 10.0,
+        "avg_search_rate": 0.2,
+        "avg_cart_rate": 0.1,
+        "avg_purchase_rate": 0.05,
+        "avg_days_since_last_activity": 4.0,
+        "avg_days_since_last_login": 3.0,
+        "avg_days_since_last_product_view": 2.0,
+        "avg_events_per_active_day": 3.0,
+        "avg_sessions_per_active_day": 1.0,
+    }
+
+    with (
+        patch("api.main.API_DATA_MODE", "supabase"),
+        patch("api.main.latest_row", return_value=malformed_row),
+    ):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 500
