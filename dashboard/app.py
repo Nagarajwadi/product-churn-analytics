@@ -22,6 +22,11 @@ from src.randomized_experiment import (
     standardized_mean_difference,
 )
 
+from src.model_monitoring import (
+    validate_predictions,
+    summarize_predictions,
+)
+
 
 # ===================================
 # PAGE CONFIGURATION
@@ -1032,6 +1037,100 @@ with risk_col4:
         high_probability_users
     )
 
+
+
+# ===================================
+# MODEL MONITORING
+# ===================================
+
+st.markdown("---")
+st.header("🩺 Model Monitoring")
+
+monitoring_path = Path(
+    "data/processed/user_churn_predictions.csv"
+)
+
+if monitoring_path.exists():
+    monitoring_predictions = pd.read_csv(monitoring_path)
+    monitoring_checks = validate_predictions(monitoring_predictions)
+
+    if monitoring_checks["passed"]:
+        monitoring_summary = summarize_predictions(
+            monitoring_predictions
+        )
+        st.success("Prediction data quality checks passed.")
+
+        metric1, metric2, metric3 = st.columns(3)
+
+        with metric1:
+            st.metric(
+                "Users Monitored",
+                f"{monitoring_summary['users']:,}",
+            )
+
+        with metric2:
+            st.metric(
+                "Mean Predicted Churn",
+                f"{monitoring_summary['mean_predicted_probability']:.2%}",
+            )
+
+        with metric3:
+            st.metric(
+                "Observed Churn",
+                f"{monitoring_summary['observed_churn_rate']:.2%}",
+            )
+
+        st.markdown("#### Prediction Data Quality")
+
+        quality_rows = [
+            ("Missing values", monitoring_checks["missing_values"]),
+            ("Duplicate user IDs", monitoring_checks["duplicate_user_ids"]),
+            ("Invalid probabilities", monitoring_checks["invalid_probabilities"]),
+            ("Invalid actual labels", monitoring_checks["invalid_actual_labels"]),
+            ("Risk segment mismatches", monitoring_checks["risk_segment_mismatches"]),
+        ]
+
+        st.dataframe(
+            pd.DataFrame(
+                quality_rows,
+                columns=["Check", "Issue count"],
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+
+        st.markdown("#### Risk Segment Distribution")
+
+        segment_counts = monitoring_summary["risk_segment_counts"]
+
+        st.bar_chart(
+            pd.Series(segment_counts, name="Users")
+        )
+
+        gap = monitoring_summary["prediction_observation_gap"]
+
+        st.metric(
+            "Prediction vs. Observed Churn Gap",
+            f"{gap * 100:+.2f} percentage points",
+        )
+
+        st.caption(
+            "This gap is a monitoring signal, not a standalone "
+            "calibration or drift verdict. Confirm that predictions "
+            "and actual outcomes use the same population and outcome "
+            "window before drawing conclusions. This file alone does "
+            "not establish performance on newly arriving users."
+        )
+
+    else:
+        st.error("Prediction data quality checks failed.")
+        st.json(monitoring_checks)
+
+else:
+    st.warning(
+        "Prediction file not found. Generate the prediction artifact "
+        "before running model monitoring."
+    )
 
 
 
