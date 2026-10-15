@@ -30,6 +30,12 @@ jobs:
           pip install -r api/requirements.txt
 
 
+      - name: Generate segment preview for tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python api/prepare_segments.py
+
+
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}
