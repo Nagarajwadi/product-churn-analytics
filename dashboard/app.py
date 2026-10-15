@@ -17,6 +17,10 @@ from src.retention_roi import (
     compare_retention_scenarios,
 )
 
+from src.randomized_experiment import (
+    run_experiment,
+    standardized_mean_difference,
+)
 
 
 # ===================================
@@ -1083,6 +1087,119 @@ st.info(
     "a randomized experiment and measure incremental retention and "
     "contribution before claiming business impact."
 )
+
+
+
+# ===================================
+# RANDOMIZED EXPERIMENT SIMULATION
+# ===================================
+
+st.markdown("---")
+st.header("🧪 Randomized Experiment Simulation")
+
+st.warning(
+    "**Simulation only — not real campaign evidence.** "
+    "Participants are randomly assigned, but churn outcomes are "
+    "generated synthetically using predefined probabilities. "
+    "These results do not establish real retention campaign impact."
+)
+
+try:
+    experiment_data, experiment_balance, experiment_result = run_experiment()
+
+    control_rate = experiment_result["control_rate"]
+    treatment_rate = experiment_result["treatment_rate"]
+    risk_difference = experiment_result["risk_difference"]
+    p_value = experiment_result["p_value"]
+
+    control_col, treatment_col = st.columns(2)
+
+    with control_col:
+        st.metric(
+            "Control Churn Rate",
+            f"{control_rate:.2%}",
+            help=(
+                f"{experiment_result['control_events']} churn events "
+                f"out of {experiment_result['control_users']} users."
+            ),
+        )
+
+    with treatment_col:
+        st.metric(
+            "Treatment Churn Rate",
+            f"{treatment_rate:.2%}",
+            delta=f"{risk_difference * 100:+.2f} percentage points",
+            delta_color="inverse",
+            help=(
+                "Difference is treatment minus control. "
+                "A negative value means lower simulated churn."
+            ),
+        )
+
+    metric1, metric2, metric3 = st.columns(3)
+
+    with metric1:
+        st.metric(
+            "Absolute Churn Difference",
+            f"{risk_difference * 100:+.2f} pp",
+        )
+
+    with metric2:
+        st.metric(
+            "Relative Churn Change",
+            (
+                f"{experiment_result['relative_change']:+.1%}"
+                if pd.notna(experiment_result["relative_change"])
+                else "N/A"
+            ),
+        )
+
+    with metric3:
+        st.metric("P-value", f"{p_value:.4f}")
+
+    st.write(
+        "95% confidence interval for the risk difference "
+        "(treatment minus control): "
+        f"**{experiment_result['ci_low'] * 100:+.2f} to "
+        f"{experiment_result['ci_high'] * 100:+.2f} percentage points**."
+    )
+
+    if p_value < 0.05:
+        st.info(
+            "The simulated groups differ at the 5% significance level. "
+            "This is not evidence of a real treatment effect."
+        )
+    else:
+        st.info(
+            "The simulated difference is not statistically significant "
+            "at the 5% level. This does not establish that a real "
+            "retention campaign has no effect."
+        )
+
+    st.markdown("#### Baseline Balance")
+
+    balance_display = experiment_balance[
+        ["feature", "control_mean", "treatment_mean", "smd", "abs_smd"]
+    ].copy()
+
+    st.dataframe(balance_display, width="stretch", hide_index=True)
+
+    largest_smd = experiment_balance["abs_smd"].max()
+    st.caption(
+        f"Largest absolute standardized mean difference: {largest_smd:.3f}. "
+        "An absolute SMD below 0.10 is a common balance guideline, "
+        "not proof of successful randomization."
+    )
+
+    st.caption(
+        "The experiment uses a fixed random seed for reproducibility. "
+        "Outcomes are synthetic; the simulation's assumed treatment "
+        "effect is not measured business impact."
+    )
+
+except (FileNotFoundError, ValueError, KeyError) as exc:
+    st.error(f"Randomized experiment simulation could not run: {exc}")
+
 
 
 # ===================================
