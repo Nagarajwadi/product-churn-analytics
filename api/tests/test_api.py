@@ -1,4 +1,7 @@
 import os
+from unittest.mock import patch
+
+from fastapi import HTTPException
 
 # Keep tests independent of the local .env and cloud database.
 os.environ["API_DATA_MODE"] = "mock"
@@ -55,3 +58,60 @@ def test_product_analytics_not_published_in_mock_mode():
     assert data["source"] == "mock_demo_data"
     assert data["metrics"] is None
     assert data["last_updated"] is None
+
+
+
+def test_supabase_missing_environment_variables_returns_503():
+    with (
+        patch("api.main.API_DATA_MODE", "supabase"),
+        patch("api.main.SUPABASE_URL", None),
+        patch("api.main.SUPABASE_KEY", None),
+    ):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 503
+    assert "environment variables are missing" in response.json()["detail"]
+
+
+def test_supabase_client_initialization_failure_returns_503():
+    with (
+        patch("api.main.API_DATA_MODE", "supabase"),
+        patch("api.main.SUPABASE_URL", "https://example.supabase.co"),
+        patch("api.main.SUPABASE_KEY", "test-publishable-key"),
+        patch(
+            "api.main.create_client",
+            side_effect=RuntimeError("connection initialization failed"),
+        ),
+    ):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Unable to initialize the cloud data connection."
+    )
+
+
+def test_supabase_read_failure_returns_503():
+    with (
+        patch("api.main.API_DATA_MODE", "supabase"),
+        patch(
+            "api.main.latest_row",
+            side_effect=HTTPException(
+                status_code=503,
+                detail="Unable to read approved metrics from "
+                "product_analytics_metrics.",
+            ),
+        ),
+    ):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 503
+    assert "Unable to read approved metrics" in response.json()["detail"]
+
+
+def test_unsupported_data_mode_returns_500():
+    with patch("api.main.API_DATA_MODE", "unsupported"):
+        response = client.get("/api/v1/product-analytics")
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Unsupported API_DATA_MODE."
